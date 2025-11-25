@@ -9,6 +9,11 @@ const userSchema = new Schema(
       minLength: [3, "User name must be minimum of 4 characters"],
       trim: true,
     },
+    username: {
+      type: String,
+      trim: true,
+      unique: true,
+    },
     email: {
       type: String,
       required: [true, "Email field is required"],
@@ -54,7 +59,7 @@ const userSchema = new Schema(
   {
     strict: "throw",
     timestamps: true,
-  }
+  },
 );
 
 userSchema.pre("save", async function (next) {

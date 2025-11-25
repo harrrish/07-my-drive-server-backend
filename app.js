@@ -19,11 +19,12 @@ app.use(
   cors({
     origin: url,
     credentials: true,
-  })
+  }),
 );
 app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(express.json());
 
+//* SIMPLE GET ROUTE
 app.get("/", (req, res) => {
   return res.status(200).json({ message: "Welcome to My-Drive" });
 });
@@ -34,5 +35,5 @@ app.use("/directory", checkAuth, directoryRouter);
 app.use("/auth", authRouter);
 
 app.listen(PORT, () =>
-  console.log(`Express app running on PORT:${process.env.PORT} `)
+  console.log(`Express app running on PORT:${process.env.PORT} `),
 );

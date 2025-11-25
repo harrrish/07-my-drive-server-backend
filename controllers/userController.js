@@ -6,14 +6,12 @@ import { loginSchema, registerSchema } from "../zodModels/authSchema.js";
 import { redisClient } from "../config/redisConfig.js";
 import { customErr, customResp } from "../utils/customReturn.js";
 
-//*===============>  REGISTERING USER
 export const registerUser = async (req, res) => {
   try {
     const { success, data, error } = registerSchema.safeParse(req.body);
     if (!success) return customErr(res, 400, error.issues[0].message);
 
     const { name, email, password, otp } = data;
-
     const otpRecord = await OTPModel.findOne({ email, otp });
     if (!otpRecord) return customErr(res, 400, "Invalid or Expired OTP");
     await otpRecord.deleteOne();
@@ -51,7 +49,6 @@ export const registerUser = async (req, res) => {
   }
 };
 
-//*===============>  USER LOGIN
 export const loginUser = async (req, res) => {
   try {
     const { success, data, error } = loginSchema.safeParse(req.body);
@@ -96,7 +93,6 @@ export const loginUser = async (req, res) => {
   }
 };
 
-//*===============>  GET USER PROFILE DETAILS
 export const getUserDetails = async (req, res) => {
   const redisKey = `user:${req.user.id}`;
   const redisData = await redisClient.json.get(redisKey);
@@ -115,7 +111,6 @@ export const getUserDetails = async (req, res) => {
   }
 };
 
-//*===============>  GET USER STORAGE DETAILS
 export const getUserStorage = async (req, res) => {
   try {
     const { rootID, maxStorageInBytes } = req.user;
@@ -128,7 +123,6 @@ export const getUserStorage = async (req, res) => {
   }
 };
 
-//*===============>  USER LOGOUT
 export const logoutUser = async (req, res) => {
   try {
     const { sessionID } = req.signedCookies;
