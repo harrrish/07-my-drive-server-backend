@@ -64,7 +64,7 @@ export const loginWithGoogle = async (req, res) => {
           picture,
           sub,
         },
-        { mongooseSession }
+        { mongooseSession },
       );
       await DirectoryModel.insertOne(
         {
@@ -74,7 +74,7 @@ export const loginWithGoogle = async (req, res) => {
           userID,
           path: rootID,
         },
-        { mongooseSession }
+        { mongooseSession },
       );
       const sessionID = new Types.ObjectId();
       const redisSessionKey = `session:${sessionID}`;
