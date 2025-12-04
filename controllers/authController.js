@@ -48,10 +48,8 @@ export const loginWithGoogle = async (req, res) => {
     const userData = await verifyToken(idToken);
     const { name, picture, email, sub } = userData;
     const user = await UserModel.findOne({ email });
-
     if (!user) {
       const mongooseSession = await mongoose.startSession();
-
       mongooseSession.startTransaction();
       const rootID = new Types.ObjectId();
       const userID = new Types.ObjectId();
@@ -79,15 +77,15 @@ export const loginWithGoogle = async (req, res) => {
       const sessionID = new Types.ObjectId();
       const redisSessionKey = `session:${sessionID}`;
       await redisClient.json.set(redisSessionKey, "$", {
-        userID: user._id,
+        userID,
       });
       await redisClient.expire(redisSessionKey, 60 * 60);
 
       const redisUserDetails = `user:${userID}`;
       const ab = await redisClient.json.set(redisUserDetails, "$", {
-        name: user.name,
-        email: user.email,
-        picture: user.picture,
+        name,
+        email,
+        picture,
       });
       await redisClient.expire(redisUserDetails, 60 * 60);
 
