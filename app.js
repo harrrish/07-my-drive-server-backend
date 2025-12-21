@@ -12,6 +12,7 @@ connectDB();
 const PORT = process.env.PORT || 4000;
 const env = process.env.NODE_ENV;
 const url = process.env.URL;
+const url2 = process.env.URL2;
 
 const app = express();
 
