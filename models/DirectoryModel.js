@@ -35,11 +35,15 @@ const directorySchema = new Schema(
         ref: "Directory",
       },
     ],
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     strict: "throw",
     timestamps: true,
-  }
+  },
 );
 
 const Directory = model("Directory", directorySchema);
