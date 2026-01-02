@@ -114,13 +114,15 @@ export const getFile = async (req, res) => {
       return customErr(res, 400, "File deleted or File access denied");
 
     const { name, extension } = fileData;
-
+    console.log(req.query.action);
     const download = req.query.action === "download";
+    console.log(download);
     const fileUrl = await createGetSignedUrl({
       key: `${fileID}${extension}`,
       download,
       filename: name,
     });
+    console.log(fileUrl);
     return res.redirect(fileUrl);
   } catch (error) {
     console.error("Failed to fetch file:", error);
@@ -148,7 +150,7 @@ export const renameFile = async (req, res) => {
 
     const renamed = await FileModel.findOneAndUpdate(
       { _id: fileID, userID },
-      { $set: { name: newName, basename } }
+      { $set: { name: newName, basename } },
     );
 
     if (!renamed) {
@@ -159,7 +161,7 @@ export const renameFile = async (req, res) => {
       return customResp(
         res,
         201,
-        `File renamed from "${renamed.name}" to "${newName}"`
+        `File renamed from "${renamed.name}" to "${newName}"`,
       );
   } catch (error) {
     console.error("File rename failed:", error);

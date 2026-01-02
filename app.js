@@ -7,28 +7,44 @@ import userRouter from "./routes/userRouter.js";
 import authRouter from "./routes/authRouter.js";
 import checkAuth from "./auth.js";
 import { connectDB } from "./config/dbConfig.js";
+import { asyncHandler } from "./utils/asyncHandler.js";
 
 connectDB();
 const PORT = process.env.PORT || 4000;
 const env = process.env.NODE_ENV;
+
 const url = process.env.URL;
 const url2 = process.env.URL2;
 
 const app = express();
+const whitelist = [url, url2];
 
 app.use(
   cors({
-    origin: url,
+    origin: function (origin, callback) {
+      if (whitelist.indexOf(origin) !== -1 || !origin) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   }),
 );
 app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(express.json());
 
-//* SIMPLE GET ROUTE
-app.get("/", (req, res) => {
-  return res.status(200).json({ message: "Welcome to My-Drive" });
-});
+app.get(
+  "/",
+  asyncHandler(async (req, res) => {
+    return res.status(200).json({
+      success: true,
+      message: "Welcome to UVDS!",
+      developer: "Harish S",
+      email: "harrrish1906@gmail.com",
+    });
+  }),
+);
 
 app.use("/user", userRouter);
 app.use("/file", checkAuth, filesRouter);

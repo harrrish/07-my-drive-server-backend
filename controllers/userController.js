@@ -5,6 +5,7 @@ import OTPModel from "../models/OTPModel.js";
 import { loginSchema, registerSchema } from "../zodModels/authSchema.js";
 import { redisClient } from "../config/redisConfig.js";
 import { customErr, customResp } from "../utils/customReturn.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 
 export const registerUser = async (req, res) => {
   try {
@@ -123,20 +124,12 @@ export const getUserStorage = async (req, res) => {
   }
 };
 
-export const logoutUser = async (req, res) => {
-  try {
-    const { sessionID } = req.signedCookies;
-    const redisKey = `session:${sessionID}`;
-    await redisClient.del(redisKey);
-    const redisUserDetailsKey = `user:${req.user.id}`;
-    await redisClient.del(redisUserDetailsKey);
-
-    res.clearCookie("sessionID");
-    console.log("User logged out_9");
-    return res.status(204).end();
-  } catch (error) {
-    console.error("User logout failed:", error);
-    const errStr = "Internal Server Error: User logout failed";
-    return customErr(res, 500, errStr);
-  }
-};
+export const logoutUser = asyncHandler(async (req, res) => {
+  const { sessionID } = req.signedCookies;
+  const redisKey = `session:${sessionID}`;
+  await redisClient.del(redisKey);
+  const redisUserDetailsKey = `user:${req.user.id}`;
+  await redisClient.del(redisUserDetailsKey);
+  res.clearCookie("sessionID");
+  return res.status(204).end();
+});

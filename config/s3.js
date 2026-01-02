@@ -7,6 +7,11 @@ import {
   S3Client,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import mime from "mime-types";
+
+function getMimeType(key) {
+  return mime.lookup(key) || "application/octet-stream";
+}
 
 export const s3Client = new S3Client({
   region: process.env.AWS_REGION || "ap-south-1", // ✅ add this line
@@ -39,20 +44,36 @@ export const createGetSignedUrl = async ({
   download = false,
   filename,
 }) => {
-  const command = new GetObjectCommand({
+  const params = {
     Bucket: "harisss-storage-app",
     Key: key,
-    ResponseContentDisposition: `${
-      download ? "attachment" : "inline"
-    }; filename=${encodeURIComponent(filename)}`,
-  });
+  };
 
-  // console.log({ getCommand: command });
+  // Set Content-Disposition header
+  if (download) {
+    // Force download
+    params.ResponseContentDisposition = `attachment; filename="${encodeURIComponent(
+      filename,
+    )}"`;
+  } else {
+    // Try to display inline - browser may still download based on file type
+    params.ResponseContentDisposition = `inline; filename="${encodeURIComponent(
+      filename,
+    )}"`;
+  }
+
+  // You can optionally set ResponseContentType to help browser understand the file
+  // But this depends on whether S3 has the Content-Type metadata set on the object
+  const contentType = getMimeType(key);
+  if (contentType) {
+    params.ResponseContentType = contentType;
+  }
+
+  const command = new GetObjectCommand(params);
 
   const url = await getSignedUrl(s3Client, command, {
     expiresIn: 300,
   });
-  // console.log({ getUrl: url });
 
   return url;
 };
