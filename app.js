@@ -13,11 +13,10 @@ connectDB();
 const PORT = process.env.PORT || 4000;
 const app = express();
 
-const url1 = process.env.URL1;
-const url2 = process.env.URL2;
-
-const whitelist = [url1, url2];
-console.log({ whitelist });
+const whitelist =
+  process.env.NODE_ENV === "production"
+    ? ["https://www.uvds.store", "https://uvds.store"]
+    : ["http://localhost:5173"];
 
 app.use(
   cors({

@@ -7,6 +7,8 @@ import { redisClient } from "../config/redisConfig.js";
 import { customErr, customResp } from "../utils/customReturn.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
+const isProd = process.env.NODE_ENV === "production";
+
 export const registerUser = async (req, res) => {
   try {
     const { success, data, error } = registerSchema.safeParse(req.body);
@@ -81,10 +83,10 @@ export const loginUser = async (req, res) => {
     });
     await redisClient.expire(redisUserDetails, 60 * 60 * 24);
 
-    res.cookie("sessionID", sessionID, {
+    res.cookie("sessionID", sessionID.toString(), {
       httpOnly: true,
-      sameSite: "none",
-      secure: true,
+      sameSite: isProd ? "none" : "lax",
+      secure: isProd,
       signed: true,
       maxAge: 60 * 60 * 1000,
     });

@@ -23,6 +23,8 @@ export const getDirectoryContents = async (req, res, next) => {
     if (!currentFolder)
       return customErr(res, 404, "Folder deleted or Access denied");
 
+    console.log({ currentFolder });
+
     const folders = await DirectoryModel.find({
       userID,
       parentFID: currentDirID,
@@ -41,7 +43,7 @@ export const getDirectoryContents = async (req, res, next) => {
         path.map(async (dirId) => {
           const dir = await DirectoryModel.findById(dirId).select("name");
           return dir ? { id: dir.id, name: dir.name } : null;
-        })
+        }),
       );
     }
     return res.status(200).json({
@@ -117,7 +119,7 @@ export const renameDirectory = async (req, res, next) => {
 
     const renamed = await DirectoryModel.findOneAndUpdate(
       { _id: folderID, userID },
-      { $set: { name: folderName } }
+      { $set: { name: folderName } },
     );
     if (!renamed) {
       res.clearCookie("sessionID");
@@ -127,7 +129,7 @@ export const renameDirectory = async (req, res, next) => {
       return customResp(
         res,
         201,
-        `Folder renamed from "${renamed.name}" to "${folderName}"`
+        `Folder renamed from "${renamed.name}" to "${folderName}"`,
       );
     }
   } catch (error) {
