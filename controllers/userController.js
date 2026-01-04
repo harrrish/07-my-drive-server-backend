@@ -13,6 +13,9 @@ export const registerUser = async (req, res) => {
     if (!success) return customErr(res, 400, error.issues[0].message);
 
     const { name, email, password, otp } = data;
+    const emailExists = await UserModel.findOne({ email });
+    if (!emailExists) return customErr(res, 400, "User email exists !");
+
     const otpRecord = await OTPModel.findOne({ email, otp });
     if (!otpRecord) return customErr(res, 400, "Invalid or Expired OTP");
     await otpRecord.deleteOne();

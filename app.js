@@ -11,12 +11,13 @@ import { asyncHandler } from "./utils/asyncHandler.js";
 
 connectDB();
 const PORT = process.env.PORT || 4000;
+const app = express();
 
 const url1 = process.env.URL1;
 const url2 = process.env.URL2;
 
-const app = express();
 const whitelist = [url1, url2];
+console.log({ whitelist });
 
 app.use(
   cors({
