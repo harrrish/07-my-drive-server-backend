@@ -38,7 +38,7 @@ app.get(
   asyncHandler(async (req, res) => {
     return res.status(200).json({
       success: true,
-      message: "Welcome to UVDS!",
+      message: "Welcome to UVDS-My Drive!",
       developer: "Harish S",
       email: "harrrish1906@gmail.com",
     });
