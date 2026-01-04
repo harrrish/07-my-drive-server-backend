@@ -44,6 +44,14 @@ app.get(
     });
   }),
 );
+app.post(
+  "/frontend-github-webhook",
+  asyncHandler(async (req, res) => {
+    return res.status(200).json({
+      message: "OK",
+    });
+  }),
+);
 
 app.use("/user", userRouter);
 app.use("/file", checkAuth, filesRouter);
