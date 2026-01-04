@@ -83,6 +83,8 @@ export const loginUser = async (req, res) => {
     });
     await redisClient.expire(redisUserDetails, 60 * 60 * 24);
 
+    console.log({ isProd });
+
     res.cookie("sessionID", sessionID.toString(), {
       httpOnly: true,
       sameSite: isProd ? "none" : "lax",
