@@ -90,6 +90,7 @@ export const loginUser = async (req, res) => {
       sameSite: isProd ? "None" : "Lax",
       secure: isProd,
       signed: true,
+      domain: isProd ? ".uvds.store" : undefined,
       maxAge: 60 * 60 * 1000,
     });
 
