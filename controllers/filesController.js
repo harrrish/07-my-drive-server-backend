@@ -6,10 +6,10 @@ import {
   createUploadSignedUrl,
   deleteS3File,
   getS3FileMetaData,
-} from "../config/s3.js";
+} from "../configurations/s3.js";
 import { validateMongoID } from "../utils/validateMongoID.js";
 import mime from "mime";
-import { editFolderSize } from "../utils/EditFolderSize.js";
+import { editFolderSize } from "../utils/editFolderSize.js";
 import { customErr, customResp } from "../utils/customReturn.js";
 
 //*===============>  INITIATE FILE UPLOAD
@@ -40,6 +40,8 @@ export const uploadFileInitiate = async (req, res) => {
       contentType,
     });
 
+    // console.log({ uploadSignedUrl });
+
     return res.status(200).json({ uploadSignedUrl, fileID: insertedFile.id });
   } catch (error) {
     console.error("Failed to start file upload:", error);
@@ -55,8 +57,7 @@ export const uploadComplete = async (req, res) => {
     const { fileID, size } = req.body;
     if (!fileID || !size) {
       res.clearCookie("sessionID");
-      console.log("User logged out_10");
-      return customErr(res, 400, "Invalid file ID");
+      return customErr(res, 400, "Invalid file ID !");
     }
     if (fileID) validateMongoID(res, fileID);
 
@@ -67,13 +68,11 @@ export const uploadComplete = async (req, res) => {
     if (!fileHeadData) {
       await file.deleteOne();
       res.clearCookie("sessionID");
-      console.log("User logged out_11");
       return customErr(res, 400, "Corrupt/Deleted file");
     }
     if (fileHeadData.ContentLength !== size) {
       await file.deleteOne();
       res.clearCookie("sessionID");
-      console.log("User logged out_12");
       return customErr(res, 400, "File size altered");
     }
 
@@ -102,7 +101,6 @@ export const getFile = async (req, res) => {
 
     if (!fileID) {
       res.clearCookie("sessionID");
-      console.log("User logged out_13");
       return customErr(res, 401, errorSession);
     }
 
@@ -139,8 +137,7 @@ export const renameFile = async (req, res) => {
 
     if (!fileID) {
       res.clearCookie("sessionID");
-      console.log("User logged out_14");
-      return customErr(res, 401, "Invalid file ID");
+      return customErr(res, 401, "Invalid file ID !");
     }
 
     if (fileID) validateMongoID(res, fileID);
@@ -155,7 +152,6 @@ export const renameFile = async (req, res) => {
 
     if (!renamed) {
       res.clearCookie("sessionID");
-      console.log("User logged out_15");
       return customErr(res, 401, "File Deleted or Access Denied");
     } else
       return customResp(
@@ -177,15 +173,13 @@ export const deleteFile = async (req, res) => {
     const fileID = req.params.fileID;
     if (!fileID) {
       res.clearCookie("sessionID");
-      console.log("User logged out_16");
-      return customErr(res, 401, "Invalid file ID");
+      return customErr(res, 401, "Invalid file ID !");
     }
     if (fileID) validateMongoID(res, fileID);
 
     const fileData = await FileModel.findOne({ _id: fileID, userID });
     if (!fileData) {
       res.clearCookie("sessionID");
-      console.log("User logged out_17");
       return customErr(res, 401, "File Deleted or Access Denied");
     }
 
@@ -199,7 +193,6 @@ export const deleteFile = async (req, res) => {
 
     if (!isFileDeleted.acknowledged) {
       res.clearCookie("sessionID");
-      console.log("User logged out_18");
       return customErr(res, 401, "File Deleted or Access Denied");
     } else {
       const parentFolder = await DirectoryModel.findById(folderID);

@@ -1,10 +1,10 @@
 import DirectoryModel from "../models/DirectoryModel.js";
 import FileModel from "../models/FileModel.js";
 import { deleteDirContents } from "../middlewares/deleteDirMiddleware.js";
-import { folderSchema } from "../zodModels/authSchema.js";
+import { folderSchema } from "../utils/zodAuthSchemas.js";
 import { validateMongoID } from "../utils/validateMongoID.js";
-import { deleteS3Files } from "../config/s3.js";
-import { editFolderSize } from "../utils/EditFolderSize.js";
+import { deleteS3Files } from "../configurations/s3.js";
+import { editFolderSize } from "../utils/editFolderSize.js";
 import { customErr, customResp } from "../utils/customReturn.js";
 
 //*===============>  GET DIRECTORY ITEMS
@@ -23,7 +23,7 @@ export const getDirectoryContents = async (req, res, next) => {
     if (!currentFolder)
       return customErr(res, 404, "Folder deleted or Access denied");
 
-    console.log({ currentFolder });
+    // console.log({ currentFolder });
 
     const folders = await DirectoryModel.find({
       userID,
@@ -107,8 +107,7 @@ export const renameDirectory = async (req, res, next) => {
     const folderID = req.params.id;
     if (!folderID) {
       res.clearCookie("sessionID");
-      console.log("User logged out_4");
-      return customErr(res, 401, "Invalid folder ID");
+      return customErr(res, 401, "Invalid folder ID !");
     }
     validateMongoID(res, folderID);
 
@@ -123,7 +122,6 @@ export const renameDirectory = async (req, res, next) => {
     );
     if (!renamed) {
       res.clearCookie("sessionID");
-      console.log("User logged out_5");
       return customErr(res, 400, "Folder deleted or Access denied");
     } else {
       return customResp(
@@ -145,15 +143,13 @@ export const deleteDirectory = async (req, res, next) => {
     const folderID = req.params.id;
     if (!folderID) {
       res.clearCookie("sessionID");
-      console.log("User logged out_6");
-      return customErr(res, 401, "Invalid folder ID");
+      return customErr(res, 401, "Invalid folder ID !");
     }
     validateMongoID(res, folderID);
 
     const folder = await DirectoryModel.findById(folderID);
     if (!folder) {
       res.clearCookie("sessionID");
-      console.log("User logged out_7");
       return customErr(res, 401, "Folder deleted or Access denied");
     }
 

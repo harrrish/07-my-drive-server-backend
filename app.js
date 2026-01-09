@@ -4,10 +4,11 @@ import cookieParser from "cookie-parser";
 import directoryRouter from "./routes/directoryRouter.js";
 import filesRouter from "./routes/filesRouter.js";
 import userRouter from "./routes/userRouter.js";
-import authRouter from "./routes/authRouter.js";
-import checkAuth from "./auth.js";
-import { connectDB } from "./config/dbConfig.js";
+import otpRouter from "./routes/otpRouter.js";
+import authenticateUser from "./middlewares/authenticateUser.js";
+import { connectDB } from "./configurations/dbConfig.js";
 import { asyncHandler } from "./utils/asyncHandler.js";
+import googleRouter from "./routes/googleRouter.js";
 
 connectDB();
 const PORT = process.env.PORT || 4000;
@@ -54,9 +55,10 @@ app.post(
 );
 
 app.use("/user", userRouter);
-app.use("/file", checkAuth, filesRouter);
-app.use("/directory", checkAuth, directoryRouter);
-app.use("/auth", authRouter);
+app.use("/file", authenticateUser, filesRouter);
+app.use("/directory", authenticateUser, directoryRouter);
+app.use("/otp", otpRouter);
+app.use("/google", googleRouter);
 
 app.listen(PORT, () =>
   console.log(`Express app running on PORT:${process.env.PORT} `),

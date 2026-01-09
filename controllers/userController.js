@@ -2,8 +2,8 @@ import { Types, mongoose } from "mongoose";
 import UserModel from "../models/UserModel.js";
 import DirectoryModel from "../models/DirectoryModel.js";
 import OTPModel from "../models/OTPModel.js";
-import { loginSchema, registerSchema } from "../zodModels/authSchema.js";
-import { redisClient } from "../config/redisConfig.js";
+import { loginSchema, registerSchema } from "../utils/zodAuthSchemas.js";
+import { redisClient } from "../configurations/redisConfig.js";
 import { customErr, customResp } from "../utils/customReturn.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
@@ -84,7 +84,7 @@ export const loginUser = async (req, res) => {
     });
     await redisClient.expire(redisUserDetails, 60 * 60 * 24);
 
-    console.log({ isProd });
+    // console.log({ isProd });
 
     res.cookie("sessionID", sessionID.toString(), {
       httpOnly: true,

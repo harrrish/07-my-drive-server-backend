@@ -1,6 +1,6 @@
 import OTP from "../models/OTPModel.js";
 import { Resend } from "resend";
-import { generateOTPHtml } from "./ResendHtml.js";
+import { generateOTPHtml } from "./otpHtmlContent.js";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 

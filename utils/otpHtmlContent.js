@@ -21,7 +21,7 @@ export const generateOTPHtml = (username, OTP) => {
       font-weight: 700;
     "
   >
-    Welcome to UVDS-My-Drive !
+    Welcome to UVDS My-Drive !
   </h1>
 
   <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 16px 0;" />

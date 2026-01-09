@@ -20,7 +20,7 @@ export const editFolderSize = async (res, parentFolder, size, type) => {
       return customErr(
         res,
         500,
-        "Internal Server Error: Failed to edit folder size"
+        "Internal Server Error: Failed to edit folder size",
       );
     }
   }

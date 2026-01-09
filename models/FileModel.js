@@ -38,6 +38,16 @@ const fileSchema = new Schema(
     isUploading: {
       type: Boolean,
     },
+    isStarred: {
+      type: Boolean,
+      default: false,
+    },
+    sharedWith: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
     isDeleted: {
       type: Boolean,
       default: false,
@@ -46,7 +56,7 @@ const fileSchema = new Schema(
   {
     strict: "throw",
     timestamps: true,
-  }
+  },
 );
 
 const File = model("File", fileSchema);

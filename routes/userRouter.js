@@ -1,5 +1,5 @@
 import express from "express";
-import checkAuth from "../auth.js";
+import authenticateUser from "../middlewares/authenticateUser.js";
 import {
   getUserDetails,
   getUserStorage,
@@ -14,10 +14,10 @@ userRouter.post("/register", registerUser);
 
 userRouter.post("/login", loginUser);
 
-userRouter.get("/profile", checkAuth, getUserDetails);
+userRouter.get("/profile", authenticateUser, getUserDetails);
 
-userRouter.get("/storage-details", checkAuth, getUserStorage);
+userRouter.get("/storage-details", authenticateUser, getUserStorage);
 
-userRouter.post("/logout", checkAuth, logoutUser);
+userRouter.post("/logout", authenticateUser, logoutUser);
 
 export default userRouter;

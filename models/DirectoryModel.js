@@ -35,6 +35,10 @@ const directorySchema = new Schema(
         ref: "Directory",
       },
     ],
+    isStarred: {
+      type: Boolean,
+      default: false,
+    },
     isDeleted: {
       type: Boolean,
       default: false,
