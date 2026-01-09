@@ -15,11 +15,12 @@ export const registerUser = async (req, res) => {
     if (!success) return customErr(res, 400, error.issues[0].message);
 
     const { name, email, password, otp } = data;
+
     const emailExists = await UserModel.findOne({ email });
-    if (!emailExists) return customErr(res, 400, "User email exists !");
+    if (emailExists) return customErr(res, 400, "User email exists !");
 
     const otpRecord = await OTPModel.findOne({ email, otp });
-    if (!otpRecord) return customErr(res, 400, "Invalid or Expired OTP");
+    if (!otpRecord) return customErr(res, 400, "Invalid or Expired OTP !");
     await otpRecord.deleteOne();
 
     const session = await mongoose.startSession();
@@ -47,10 +48,10 @@ export const registerUser = async (req, res) => {
       { session },
     );
     session.commitTransaction();
-    return customResp(res, 201, "User registration complete");
+    return customResp(res, 201, "User registration complete !");
   } catch (error) {
     console.error("User registration failed:", error);
-    const errStr = "Internal Server Error: User registration failed";
+    const errStr = "Internal Server Error: User registration failed !";
     return customErr(res, 500, errStr);
   }
 };
@@ -63,10 +64,10 @@ export const loginUser = async (req, res) => {
     const { email, password } = data;
 
     const user = await UserModel.findOne({ email });
-    if (!user) return customErr(res, 400, "Invalid Credentials");
+    if (!user) return customErr(res, 400, "Invalid Credentials !");
 
     const isPasswordValid = await user.comparePassword(password);
-    if (!isPasswordValid) return customErr(res, 400, "Invalid Credentials");
+    if (!isPasswordValid) return customErr(res, 400, "Invalid Credentials !");
 
     const sessionID = new Types.ObjectId();
     const redisSessionKey = `session:${sessionID}`;
@@ -97,7 +98,7 @@ export const loginUser = async (req, res) => {
     return customResp(res, 200, "User login successful");
   } catch (error) {
     console.error("User login failed:", error);
-    const errStr = "Internal Server Error: User login failed";
+    const errStr = "Internal Server Error: User login failed !";
     return customErr(res, 500, errStr);
   }
 };

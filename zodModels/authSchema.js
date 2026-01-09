@@ -2,6 +2,10 @@ import * as z from "zod";
 
 //*===============>  OTP SCHEMA
 export const otpRequestSchema = z.object({
+  name: z
+    .string("Please provide a valid name")
+    .trim()
+    .min(3, "Name must be at least 3 characters"),
   email: z
     .email("Please provide a valid email")
     .trim()
