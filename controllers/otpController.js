@@ -8,7 +8,7 @@ export const requestOTP = async (req, res) => {
   const { success, data, error } = otpRequestSchema.safeParse(req.body);
   // console.log({ success }, { data }, { error });
 
-  if (!success) return customErr(res, 400, "Invalid credentials");
+  if (!success) return customErr(res, 400, "Invalid credentials !");
 
   const { email } = data;
   const emailExists = await UserModel.findOne({ email });

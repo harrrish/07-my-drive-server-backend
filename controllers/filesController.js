@@ -166,6 +166,97 @@ export const renameFile = async (req, res) => {
   }
 };
 
+//*===============>  STAR FILE
+export const starFile = async (req, res) => {
+  try {
+    const { _id: userID } = req.user;
+    const fileID = req.params.fileID;
+
+    if (!fileID) {
+      return customErr(res, 401, "Unable to add to Favorites !");
+    }
+
+    if (fileID) validateMongoID(res, fileID);
+
+    const { isStarred } = req.body;
+
+    const starredFile = await FileModel.findOneAndUpdate(
+      { _id: fileID, userID },
+      { isStarred: !isStarred },
+    );
+
+    if (!starredFile) {
+      res.clearCookie("sessionID");
+      return customErr(res, 401, "File Deleted or Access Denied !");
+    } else
+      return customResp(
+        res,
+        201,
+        `File "${starredFile.name}" ${
+          isStarred ? "removed from" : "moved to"
+        } favorites !`,
+      );
+  } catch (error) {
+    console.error("File adding to favorites failed:", error);
+    const errStr = "Internal Server Error: Adding files to favorite failed !";
+    return customErr(res, 500, errStr);
+  }
+};
+
+//*===============>  TRASH FILE
+export const trashFile = async (req, res) => {
+  try {
+    const { _id: userID } = req.user;
+    const fileID = req.params.fileID;
+
+    if (!fileID) return customErr(res, 401, "Unable to move folder to trash !");
+    if (fileID) validateMongoID(res, fileID);
+
+    const { isTrashed } = req.body;
+    console.log({ isTrashed });
+
+    const trashedFile = await FileModel.findOne({
+      _id: fileID,
+      userID,
+    });
+    // console.log(trashedFile);
+
+    const fileParentFolderExists = await DirectoryModel.findById({
+      _id: trashedFile.folderID,
+    });
+    // console.log(fileParentFolderExists);
+
+    if (!fileParentFolderExists.isTrashed) {
+      trashedFile.isTrashed = !isTrashed;
+      await trashedFile.save();
+    } else {
+      return customErr(res, 401, "Folder may be deleted or Access denied");
+    }
+
+    //* { isTrashed: !isTrashed, isStarred: false },
+
+    if (!trashedFile) {
+      return customErr(res, 401, "File Deleted or Access Denied !");
+    } else {
+      const currentFolder = await DirectoryModel.findById(trashedFile.folderID);
+      if (isTrashed) currentFolder.filesCount += 1;
+      else currentFolder.filesCount -= 1;
+      await currentFolder.save();
+      return customResp(
+        res,
+        201,
+        `File "${trashedFile.name}" ${
+          isTrashed ? "removed from" : "moved to"
+        } trash !`,
+      );
+    }
+  } catch (error) {
+    console.error("File moving to trash failed:", error);
+    const errStr = "Internal Server Error: Moving file to trash failed !";
+    return customErr(res, 500, errStr);
+  }
+};
+
 //*===============>  DELETE FILE
 export const deleteFile = async (req, res) => {
   try {
@@ -196,8 +287,6 @@ export const deleteFile = async (req, res) => {
       return customErr(res, 401, "File Deleted or Access Denied");
     } else {
       const parentFolder = await DirectoryModel.findById(folderID);
-      parentFolder.filesCount -= 1;
-      await parentFolder.save();
       editFolderSize(res, parentFolder, size, "dec");
       return customResp(res, 201, `File "${fileData.name}" deleted`);
     }

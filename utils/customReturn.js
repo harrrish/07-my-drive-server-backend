@@ -7,6 +7,6 @@ export const customResp = (res, status, value) => {
 };
 
 /* 
-return customErr(res, 400, "Invalid Credentials");
-return customResp(res, 200, "User logged in");
+return customErr(res, 400, "Invalid Credentials !");
+return customResp(res, 200, "User logged in !");
 */

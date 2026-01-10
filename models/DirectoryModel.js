@@ -29,6 +29,12 @@ const directorySchema = new Schema(
       default: null,
       ref: "Directory",
     },
+    previousParentFID: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Directory",
+      },
+    ],
     path: [
       {
         type: Schema.Types.ObjectId,
@@ -36,6 +42,10 @@ const directorySchema = new Schema(
       },
     ],
     isStarred: {
+      type: Boolean,
+      default: false,
+    },
+    isTrashed: {
       type: Boolean,
       default: false,
     },

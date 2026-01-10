@@ -59,7 +59,7 @@ export const registerUser = async (req, res) => {
 export const loginUser = async (req, res) => {
   try {
     const { success, data, error } = loginSchema.safeParse(req.body);
-    if (!success) return customErr(res, 400, "Invalid Credentials");
+    if (!success) return customErr(res, 400, "Invalid Credentials !");
 
     const { email, password } = data;
 
@@ -95,7 +95,7 @@ export const loginUser = async (req, res) => {
       maxAge: 60 * 60 * 1000,
     });
 
-    return customResp(res, 200, "User login successful");
+    return customResp(res, 200, "User login successful !");
   } catch (error) {
     console.error("User login failed:", error);
     const errStr = "Internal Server Error: User login failed !";

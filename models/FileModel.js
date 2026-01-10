@@ -26,6 +26,12 @@ const fileSchema = new Schema(
       required: [true, "Parent Directory ID is not mentioned"],
       ref: "Directory",
     },
+    previousFolderID: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Directory",
+      },
+    ],
     path: {
       dirPath: [
         {
@@ -39,6 +45,10 @@ const fileSchema = new Schema(
       type: Boolean,
     },
     isStarred: {
+      type: Boolean,
+      default: false,
+    },
+    isTrashed: {
       type: Boolean,
       default: false,
     },

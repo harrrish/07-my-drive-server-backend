@@ -3,10 +3,12 @@ import {
   deleteFile,
   getFile,
   renameFile,
+  starFile,
+  trashFile,
   uploadComplete,
   uploadFileInitiate,
 } from "../controllers/filesController.js";
-import { checkFileSize } from "../middlewares/checkFileSizeMiddleware.js";
+import { checkFileSize } from "../middlewares/checkFileSize.js";
 
 const filesRouter = express.Router();
 
@@ -20,9 +22,15 @@ filesRouter.post("/upload/complete", uploadComplete);
 filesRouter.get("/:fileID", getFile);
 
 //*===============>  RENAME FILE
-filesRouter.patch("/:fileID", renameFile);
+filesRouter.patch("/rename/:fileID", renameFile);
+
+//*===============>  STAR FILE
+filesRouter.patch("/star/:fileID", starFile);
+
+//*===============>  TRASH FILE
+filesRouter.patch("/trash/:fileID", trashFile);
 
 //*===============>  DELETE FILE
-filesRouter.delete("/:fileID", deleteFile);
+filesRouter.delete("/delete/:fileID", deleteFile);
 
 export default filesRouter;

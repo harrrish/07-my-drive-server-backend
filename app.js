@@ -9,6 +9,8 @@ import authenticateUser from "./middlewares/authenticateUser.js";
 import { connectDB } from "./configurations/dbConfig.js";
 import { asyncHandler } from "./utils/asyncHandler.js";
 import googleRouter from "./routes/googleRouter.js";
+import starredRouter from "./routes/starredRouter.js";
+import trashedRouter from "./routes/trashedRouter.js";
 
 connectDB();
 const PORT = process.env.PORT || 4000;
@@ -57,6 +59,8 @@ app.post(
 app.use("/user", userRouter);
 app.use("/file", authenticateUser, filesRouter);
 app.use("/directory", authenticateUser, directoryRouter);
+app.use("/starred", authenticateUser, starredRouter);
+app.use("/trashed", authenticateUser, trashedRouter);
 app.use("/otp", otpRouter);
 app.use("/google", googleRouter);
 
