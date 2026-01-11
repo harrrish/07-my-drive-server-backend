@@ -1,6 +1,7 @@
 import DirectoryModel from "../models/DirectoryModel.js";
 import FileModel from "../models/FileModel.js";
-import { customErr } from "../utils/customReturn.js";
+import { customErr, customResp } from "../utils/customReturn.js";
+import { trashDirectoryContents } from "../utils/trashDirectoryContents.js";
 
 //*===============>  FETCHING TRASHED CONTENTS
 export const getTrashedContents = async (req, res, next) => {
@@ -9,14 +10,12 @@ export const getTrashedContents = async (req, res, next) => {
 
     const folders = await DirectoryModel.find({
       userID,
-      isStarred: false,
-      isTrashed: true,
+      isDeleted: true,
     });
 
     const files = await FileModel.find({
       userID,
-      isStarred: false,
-      isTrashed: true,
+      isDeleted: true,
     });
 
     return res.status(200).json({
@@ -26,272 +25,178 @@ export const getTrashedContents = async (req, res, next) => {
       filesCount: files.length,
     });
   } catch (error) {
-    console.error("Failed to trashed contents:", error);
+    console.error(error);
     const errStr = "Internal Server Error";
     return customErr(res, 500, errStr);
   }
 };
 
-//*===============>  ADD TO STAR FOLDER
+//*===============>  MOVE FOLDER TO TRASH
 export const moveFolderToTrash = async (req, res, next) => {
-  console.log(req.user);
   try {
     const { id: userID } = req.user;
     // console.log({ userID });
+    const folderID = req.params.folderID;
 
-    const folders = await DirectoryModel.find({
+    const folder = await DirectoryModel.findOne({
+      _id: folderID,
       userID,
-      parentFID: currentDirID,
-      isStarred: true,
       isTrashed: false,
+      isDeleted: false,
     });
 
-    const files = await FileModel.find({
-      folderID: currentDirID,
-      userID,
-      isUploading: false,
-      isStarred: true,
-      isTrashed: false,
+    if (!folder)
+      return customErr(res, 400, "Folder deleted or Access denied !");
+
+    folder.isTrashed = true;
+    folder.isDeleted = true;
+
+    const subFolderList = [];
+    await trashDirectoryContents(folder.id, subFolderList);
+    // console.log(subFolderList);
+    await folder.save();
+
+    const parentFolder = await DirectoryModel.findById({
+      _id: folder.parentFID,
     });
+    parentFolder.foldersCount -= 1;
+    await parentFolder.save();
 
-    return res.status(200).json({
-      files,
-      folders,
-      filesCount: filesCount.length,
-      foldersCount: foldersCount.length,
-    });
-  } catch (error) {
-    console.error("Failed to fetch folder content:", error);
-    const errStr = "Internal Server Error";
-    return customErr(res, 500, errStr);
-  }
-};
-
-//*===============>  REMOVE STAR FROM FOLDER
-export const removeFolderFromTrash = async (req, res, next) => {
-  console.log(req.user);
-  try {
-    const { id: userID } = req.user;
-    // console.log({ userID });
-
-    const folders = await DirectoryModel.find({
-      userID,
-      parentFID: currentDirID,
-      isStarred: true,
-      isTrashed: false,
-    });
-
-    const files = await FileModel.find({
-      folderID: currentDirID,
-      userID,
-      isUploading: false,
-      isStarred: true,
-      isTrashed: false,
-    });
-
-    return res.status(200).json({
-      files,
-      folders,
-      filesCount: filesCount.length,
-      foldersCount: foldersCount.length,
-    });
-  } catch (error) {
-    console.error("Failed to fetch folder content:", error);
-    const errStr = "Internal Server Error";
-    return customErr(res, 500, errStr);
-  }
-};
-
-//*===============>  ADD STAR TO FILE
-export const moveFileToTrash = async (req, res, next) => {
-  console.log(req.user);
-  try {
-    const { id: userID } = req.user;
-    // console.log({ userID });
-
-    const folders = await DirectoryModel.find({
-      userID,
-      parentFID: currentDirID,
-      isStarred: true,
-      isTrashed: false,
-    });
-
-    const files = await FileModel.find({
-      folderID: currentDirID,
-      userID,
-      isUploading: false,
-      isStarred: true,
-      isTrashed: false,
-    });
-
-    return res.status(200).json({
-      files,
-      folders,
-      filesCount: filesCount.length,
-      foldersCount: foldersCount.length,
-    });
-  } catch (error) {
-    console.error("Failed to fetch folder content:", error);
-    const errStr = "Internal Server Error";
-    return customErr(res, 500, errStr);
-  }
-};
-
-//*===============>  REMOVE STAR FROM FILE
-export const removeFileFromTrash = async (req, res, next) => {
-  console.log(req.user);
-  try {
-    const { id: userID } = req.user;
-    // console.log({ userID });
-
-    const folders = await DirectoryModel.find({
-      userID,
-      parentFID: currentDirID,
-      isStarred: true,
-      isTrashed: false,
-    });
-
-    const files = await FileModel.find({
-      folderID: currentDirID,
-      userID,
-      isUploading: false,
-      isStarred: true,
-      isTrashed: false,
-    });
-
-    return res.status(200).json({
-      files,
-      folders,
-      filesCount: filesCount.length,
-      foldersCount: foldersCount.length,
-    });
-  } catch (error) {
-    console.error("Failed to fetch folder content:", error);
-    const errStr = "Internal Server Error";
-    return customErr(res, 500, errStr);
-  }
-};
-
-//* OLD CODE TRASH FILE
-export const trashFile = async (req, res) => {
-  try {
-    const { _id: userID } = req.user;
-    const fileID = req.params.fileID;
-
-    if (!fileID) return customErr(res, 401, "Unable to move folder to trash !");
-    if (fileID) validateMongoID(res, fileID);
-
-    const { isTrashed } = req.body;
-    // console.log({ isTrashed });
-
-    const trashedFile = await FileModel.findOne({
-      _id: fileID,
-      userID,
-    });
-    // console.log(trashedFile);
-
-    const fileParentFolderExists = await DirectoryModel.findById({
-      _id: trashedFile.folderID,
-    });
-    // console.log(fileParentFolderExists);
-
-    if (!fileParentFolderExists.isTrashed) {
-      trashedFile.isTrashed = !isTrashed;
-      await trashedFile.save();
-    } else {
-      return customErr(res, 401, "Folder may be deleted or Access denied");
-    }
-
-    if (!trashedFile) {
-      return customErr(res, 401, "File Deleted or Access Denied !");
-    } else {
-      const currentFolder = await DirectoryModel.findById(trashedFile.folderID);
-      if (isTrashed) currentFolder.filesCount += 1;
-      else currentFolder.filesCount -= 1;
-      await currentFolder.save();
-      return customResp(
-        res,
-        201,
-        `File "${trashedFile.name}" ${
-          isTrashed ? "removed from" : "moved to"
-        } trash !`,
+    for await (let folderID of subFolderList) {
+      await DirectoryModel.findByIdAndUpdate(
+        { _id: folderID, isDeleted: false },
+        { isTrashed: true },
       );
     }
+    return customResp(res, 201, `Folder "${folder.name}" moved to trash !`);
   } catch (error) {
-    console.error("File moving to trash failed:", error);
+    console.error(error);
     const errStr = "Internal Server Error";
     return customErr(res, 500, errStr);
   }
 };
 
-//* OLD CODE TRASH FOLDER
-export const trashDirectory = async (req, res) => {
+//*===============>  REMOVE FOLDER FROM TRASH
+export const removeFolderFromTrash = async (req, res, next) => {
   try {
-    const { _id: userID } = req.user;
-    const folderID = req.params.id;
-    const { isTrashed } = req.body;
+    const { id: userID } = req.user;
+    // console.log({ userID });
+    const folderID = req.params.folderID;
 
-    if (!folderID)
-      return customErr(res, 401, "Unable to move folder to trash !");
-    if (folderID) validateMongoID(res, folderID);
-
-    const trashedFolder = await DirectoryModel.findOne({
+    const folder = await DirectoryModel.findOne({
       _id: folderID,
       userID,
     });
+    console.log(folder);
+    if (!folder)
+      return customErr(res, 400, "Parent folder is not accessible !");
 
-    const parentFolderNotTrashed = await DirectoryModel.findOne({
-      _id: trashedFolder.parentFID,
+    const folderParentNotTrashed = await DirectoryModel.findById({
+      _id: folder.parentFID,
+    });
+    if (folderParentNotTrashed.isTrashed || folderParentNotTrashed.isDeleted) {
+      return customErr(res, 400, "Parent folder is not accessible !");
+    }
+
+    folder.isTrashed = false;
+    folder.isDeleted = false;
+
+    const subFolderList = [];
+    await trashDirectoryContents(folder.id, subFolderList);
+    // console.log(subFolderList);
+    await folder.save();
+
+    const parentFolder = await DirectoryModel.findById({
+      _id: folder.parentFID,
+    });
+    parentFolder.foldersCount += 1;
+    await parentFolder.save();
+
+    for await (let folderID of subFolderList) {
+      const folder = await DirectoryModel.findById(folderID);
+      if (!folder.isDeleted) folder.isTrashed = false;
+      await folder.save();
+    }
+    return customResp(res, 201, `Folder "${folder.name}" removed to trash !`);
+  } catch (error) {
+    console.error(error);
+    const errStr = "Internal Server Error";
+    return customErr(res, 500, errStr);
+  }
+};
+
+//*===============>  MOVE FILE TO TRASH
+export const moveFileToTrash = async (req, res, next) => {
+  try {
+    const { id: userID } = req.user;
+    // console.log({ userID });
+    const fileID = req.params.fileID;
+
+    const file = await FileModel.findOne({
+      _id: fileID,
+      userID,
+      isTrashed: false,
+      isDeleted: false,
     });
 
-    if (!parentFolderNotTrashed.isTrashed) {
-      trashedFolder.isTrashed = !isTrashed;
-      await trashedFolder.save();
-    } else return customErr(res, 401, "Folder may be deleted or Access denied");
+    if (!file) return customErr(res, 400, "File deleted or Access denied !");
 
-    // AndUpdate
-    // { isTrashed: !isTrashed },
+    file.isStarred = false;
+    file.isTrashed = true;
+    file.isDeleted = true;
 
-    if (!trashedFolder) {
-      return customErr(res, 401, "Folder may be deleted or Access denied");
-    } else {
-      let currentFolder = await DirectoryModel.findById(
-        trashedFolder.parentFID,
-      );
+    await file.save();
 
-      const foldersList = [];
-      await trashDirectoryContents(currentFolder.id, foldersList);
+    const parentFolder = await DirectoryModel.findById({ _id: file.folderID });
+    parentFolder.filesCount -= 1;
+    await parentFolder.save();
 
-      if (isTrashed) {
-        currentFolder.foldersCount += 1;
-        for await (const folderID of foldersList) {
-          await DirectoryModel.findByIdAndUpdate(
-            { _id: folderID },
-            { isTrashed: false },
-          );
-        }
-      } else {
-        currentFolder.foldersCount -= 1;
-        for await (const folderID of foldersList) {
-          await DirectoryModel.findByIdAndUpdate(
-            { _id: folderID },
-            { isTrashed: true },
-          );
-        }
-      }
-      await currentFolder.save();
-      // console.log(foldersList);
-
-      return customResp(
-        res,
-        201,
-        `Folder "${trashedFolder.name}" ${
-          isTrashed ? "removed from" : "moved to"
-        } trash !`,
-      );
-    }
+    return customResp(res, 201, `File "${file.name}" moved to trash !`);
   } catch (error) {
-    console.error("Folder moving to trash failed:", error);
+    console.error(error);
+    const errStr = "Internal Server Error";
+    return customErr(res, 500, errStr);
+  }
+};
+
+//*===============>  REMOVE FILE FROM TRASH
+export const removeFileFromTrash = async (req, res, next) => {
+  try {
+    const { id: userID } = req.user;
+    // console.log({ userID });
+    const fileID = req.params.fileID;
+
+    const file = await FileModel.findOne({
+      _id: fileID,
+      userID,
+      isTrashed: true,
+      isDeleted: true,
+    });
+
+    if (!file) return customErr(res, 400, "File deleted or Access denied !");
+
+    const fileParentNotTrashed = await DirectoryModel.findById({
+      _id: file.folderID,
+    });
+    if (fileParentNotTrashed.isTrashed || fileParentNotTrashed.isDeleted) {
+      return customErr(res, 400, "Folder containing file is not accessible !");
+    }
+
+    file.isStarred = false;
+    file.isTrashed = false;
+    file.isDeleted = false;
+
+    await file.save();
+
+    const parentFolder = await DirectoryModel.findById({
+      _id: file.folderID,
+    });
+    parentFolder.filesCount += 1;
+    await parentFolder.save();
+
+    return customResp(res, 201, `File "${file.name}" removed to trash !`);
+  } catch (error) {
+    console.error(error);
     const errStr = "Internal Server Error";
     return customErr(res, 500, errStr);
   }

@@ -30,6 +30,7 @@ export const getDirectoryContents = async (req, res, next) => {
       userID,
       parentFID: currentDirID,
       isTrashed: false,
+      isDeleted: false,
     });
 
     const files = await FileModel.find({
@@ -37,6 +38,7 @@ export const getDirectoryContents = async (req, res, next) => {
       userID,
       isUploading: false,
       isTrashed: false,
+      isDeleted: false,
     });
 
     const { filesCount, foldersCount, path } = currentFolder;
