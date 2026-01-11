@@ -4,7 +4,7 @@ export const asyncHandler = (fn) => {
       const result = await fn(req, res);
       return result;
     } catch (error) {
-      console.log(error);
+      console.error(error);
       return res.status(500).json({ error: "Internal server error !" });
     }
   };

@@ -112,15 +112,15 @@ export const getFile = async (req, res) => {
       return customErr(res, 400, "File deleted or File access denied");
 
     const { name, extension } = fileData;
-    console.log(req.query.action);
+    // console.log(req.query.action);
     const download = req.query.action === "download";
-    console.log(download);
+    // console.log(download);
     const fileUrl = await createGetSignedUrl({
       key: `${fileID}${extension}`,
       download,
       filename: name,
     });
-    console.log(fileUrl);
+    // console.log(fileUrl);
     return res.redirect(fileUrl);
   } catch (error) {
     console.error("Failed to fetch file:", error);

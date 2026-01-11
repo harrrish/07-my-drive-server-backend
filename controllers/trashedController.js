@@ -87,7 +87,7 @@ export const removeFolderFromTrash = async (req, res, next) => {
       _id: folderID,
       userID,
     });
-    console.log(folder);
+    // console.log(folder);
     if (!folder)
       return customErr(res, 400, "Parent folder is not accessible !");
 
