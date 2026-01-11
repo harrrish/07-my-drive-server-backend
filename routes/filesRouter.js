@@ -3,8 +3,6 @@ import {
   deleteFile,
   getFile,
   renameFile,
-  starFile,
-  trashFile,
   uploadComplete,
   uploadFileInitiate,
 } from "../controllers/filesController.js";
@@ -23,12 +21,6 @@ filesRouter.get("/:fileID", getFile);
 
 //*===============>  RENAME FILE
 filesRouter.patch("/rename/:fileID", renameFile);
-
-//*===============>  STAR FILE
-filesRouter.patch("/star/:fileID", starFile);
-
-//*===============>  TRASH FILE
-filesRouter.patch("/trash/:fileID", trashFile);
 
 //*===============>  DELETE FILE
 filesRouter.delete("/delete/:fileID", deleteFile);

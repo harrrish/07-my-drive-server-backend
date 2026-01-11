@@ -45,7 +45,7 @@ export const uploadFileInitiate = async (req, res) => {
     return res.status(200).json({ uploadSignedUrl, fileID: insertedFile.id });
   } catch (error) {
     console.error("Failed to start file upload:", error);
-    const errStr = "Internal Server Error: Failed to start file upload";
+    const errStr = "Internal Server Error";
     return customErr(res, 500, errStr);
   }
 };
@@ -88,7 +88,7 @@ export const uploadComplete = async (req, res) => {
     return customResp(res, 200, `File "${file.name}" upload complete`);
   } catch (error) {
     console.error("File upload failed:", error);
-    const errStr = "Internal Server Error: File upload failed";
+    const errStr = "Internal Server Error";
     return customErr(res, 500, errStr);
   }
 };
@@ -124,7 +124,7 @@ export const getFile = async (req, res) => {
     return res.redirect(fileUrl);
   } catch (error) {
     console.error("Failed to fetch file:", error);
-    const errStr = "Internal Server Error: Failed to fetch file";
+    const errStr = "Internal Server Error";
     return customErr(res, 500, errStr);
   }
 };
@@ -161,98 +161,7 @@ export const renameFile = async (req, res) => {
       );
   } catch (error) {
     console.error("File rename failed:", error);
-    const errStr = "Internal Server Error: File rename failed";
-    return customErr(res, 500, errStr);
-  }
-};
-
-//*===============>  STAR FILE
-export const starFile = async (req, res) => {
-  try {
-    const { _id: userID } = req.user;
-    const fileID = req.params.fileID;
-
-    if (!fileID) {
-      return customErr(res, 401, "Unable to add to Favorites !");
-    }
-
-    if (fileID) validateMongoID(res, fileID);
-
-    const { isStarred } = req.body;
-
-    const starredFile = await FileModel.findOneAndUpdate(
-      { _id: fileID, userID },
-      { isStarred: !isStarred },
-    );
-
-    if (!starredFile) {
-      res.clearCookie("sessionID");
-      return customErr(res, 401, "File Deleted or Access Denied !");
-    } else
-      return customResp(
-        res,
-        201,
-        `File "${starredFile.name}" ${
-          isStarred ? "removed from" : "moved to"
-        } favorites !`,
-      );
-  } catch (error) {
-    console.error("File adding to favorites failed:", error);
-    const errStr = "Internal Server Error: Adding files to favorite failed !";
-    return customErr(res, 500, errStr);
-  }
-};
-
-//*===============>  TRASH FILE
-export const trashFile = async (req, res) => {
-  try {
-    const { _id: userID } = req.user;
-    const fileID = req.params.fileID;
-
-    if (!fileID) return customErr(res, 401, "Unable to move folder to trash !");
-    if (fileID) validateMongoID(res, fileID);
-
-    const { isTrashed } = req.body;
-    console.log({ isTrashed });
-
-    const trashedFile = await FileModel.findOne({
-      _id: fileID,
-      userID,
-    });
-    // console.log(trashedFile);
-
-    const fileParentFolderExists = await DirectoryModel.findById({
-      _id: trashedFile.folderID,
-    });
-    // console.log(fileParentFolderExists);
-
-    if (!fileParentFolderExists.isTrashed) {
-      trashedFile.isTrashed = !isTrashed;
-      await trashedFile.save();
-    } else {
-      return customErr(res, 401, "Folder may be deleted or Access denied");
-    }
-
-    //* { isTrashed: !isTrashed, isStarred: false },
-
-    if (!trashedFile) {
-      return customErr(res, 401, "File Deleted or Access Denied !");
-    } else {
-      const currentFolder = await DirectoryModel.findById(trashedFile.folderID);
-      if (isTrashed) currentFolder.filesCount += 1;
-      else currentFolder.filesCount -= 1;
-      await currentFolder.save();
-      return customResp(
-        res,
-        201,
-        `File "${trashedFile.name}" ${
-          isTrashed ? "removed from" : "moved to"
-        } trash !`,
-      );
-    }
-  } catch (error) {
-    console.error("File moving to trash failed:", error);
-    const errStr = "Internal Server Error: Moving file to trash failed !";
+    const errStr = "Internal Server Error";
     return customErr(res, 500, errStr);
   }
 };
@@ -292,7 +201,7 @@ export const deleteFile = async (req, res) => {
     }
   } catch (error) {
     console.error("File deletion failed:", error);
-    const errStr = "Internal Server Error: File deletion failed";
+    const errStr = "Internal Server Error";
     return customErr(res, 500, errStr);
   }
 };

@@ -36,6 +36,7 @@ app.use(
 app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(express.json());
 
+//* DEFAULT ENDPOINT
 app.get(
   "/",
   asyncHandler(async (req, res) => {
@@ -47,6 +48,8 @@ app.get(
     });
   }),
 );
+
+//* GITHUB WEBHOOK
 app.post(
   "/frontend-github-webhook",
   asyncHandler(async (req, res) => {
@@ -59,8 +62,8 @@ app.post(
 app.use("/user", userRouter);
 app.use("/file", authenticateUser, filesRouter);
 app.use("/directory", authenticateUser, directoryRouter);
-app.use("/starred", authenticateUser, starredRouter);
-app.use("/trashed", authenticateUser, trashedRouter);
+app.use("/star", authenticateUser, starredRouter);
+app.use("/trash", authenticateUser, trashedRouter);
 app.use("/otp", otpRouter);
 app.use("/google", googleRouter);
 

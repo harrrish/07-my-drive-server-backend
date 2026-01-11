@@ -58,7 +58,7 @@ export const getDirectoryContents = async (req, res, next) => {
     });
   } catch (error) {
     console.error("Failed to fetch folder content:", error);
-    const errStr = "Internal Server Error: Failed to fetch folder content";
+    const errStr = "Internal Server Error";
     return customErr(res, 500, errStr);
   }
 };
@@ -98,7 +98,7 @@ export const createDirectory = async (req, res, next) => {
     return customResp(res, 201, `Folder "${folderName}" created`);
   } catch (error) {
     console.error("Folder creation failed:", error);
-    const errStr = "Internal Server Error: Folder creation failed";
+    const errStr = "Internal Server Error";
     return customErr(res, 500, errStr);
   }
 };
@@ -135,116 +135,7 @@ export const renameDirectory = async (req, res, next) => {
     }
   } catch (error) {
     console.error("Folder rename failed:", error);
-    const errStr = "Internal Server Error: Folder rename failed";
-    return customErr(res, 500, errStr);
-  }
-};
-
-//*===============>  STAR DIRECTORY
-export const starDirectory = async (req, res) => {
-  try {
-    const { _id: userID } = req.user;
-    const folderID = req.params.id;
-
-    if (!folderID) {
-      return customErr(res, 401, "Unable to add to Favorites !");
-    }
-
-    if (folderID) validateMongoID(res, folderID);
-
-    const { isStarred } = req.body;
-
-    const starredFile = await DirectoryModel.findOneAndUpdate(
-      { _id: folderID, userID },
-      { isStarred: !isStarred },
-    );
-
-    if (!starredFile) {
-      return customErr(res, 401, "Folder Deleted or Access Denied !");
-    } else
-      return customResp(
-        res,
-        201,
-        `Folder "${starredFile.name}" ${
-          isStarred ? "removed from" : "moved to"
-        } favorites !`,
-      );
-  } catch (error) {
-    console.error("Folder adding to favorites failed:", error);
-    const errStr = "Internal Server Error: Adding folder to favorite failed !";
-    return customErr(res, 500, errStr);
-  }
-};
-
-//*===============>  TRASH DIRECTORY
-export const trashDirectory = async (req, res) => {
-  try {
-    const { _id: userID } = req.user;
-    const folderID = req.params.id;
-    const { isTrashed } = req.body;
-
-    if (!folderID)
-      return customErr(res, 401, "Unable to move folder to trash !");
-    if (folderID) validateMongoID(res, folderID);
-
-    const trashedFolder = await DirectoryModel.findOne({
-      _id: folderID,
-      userID,
-    });
-
-    const parentFolderNotTrashed = await DirectoryModel.findOne({
-      _id: trashedFolder.parentFID,
-    });
-
-    if (!parentFolderNotTrashed.isTrashed) {
-      trashedFolder.isTrashed = !isTrashed;
-      await trashedFolder.save();
-    } else return customErr(res, 401, "Folder may be deleted or Access denied");
-
-    // AndUpdate
-    // { isTrashed: !isTrashed },
-
-    if (!trashedFolder) {
-      return customErr(res, 401, "Folder may be deleted or Access denied");
-    } else {
-      let currentFolder = await DirectoryModel.findById(
-        trashedFolder.parentFID,
-      );
-
-      const foldersList = [];
-      await trashDirectoryContents(currentFolder.id, foldersList);
-
-      if (isTrashed) {
-        currentFolder.foldersCount += 1;
-        for await (const folderID of foldersList) {
-          await DirectoryModel.findByIdAndUpdate(
-            { _id: folderID },
-            { isTrashed: false },
-          );
-        }
-      } else {
-        currentFolder.foldersCount -= 1;
-        for await (const folderID of foldersList) {
-          await DirectoryModel.findByIdAndUpdate(
-            { _id: folderID },
-            { isTrashed: true },
-          );
-        }
-      }
-      await currentFolder.save();
-      // console.log(foldersList);
-
-      return customResp(
-        res,
-        201,
-        `Folder "${trashedFolder.name}" ${
-          isTrashed ? "removed from" : "moved to"
-        } trash !`,
-      );
-    }
-  } catch (error) {
-    console.error("Folder moving to trash failed:", error);
-    const errStr = "Internal Server Error: Moving folder to trash failed !";
+    const errStr = "Internal Server Error";
     return customErr(res, 500, errStr);
   }
 };
@@ -289,7 +180,7 @@ export const deleteDirectory = async (req, res, next) => {
     return customResp(res, 201, `Folder "${folder.name}" deleted`);
   } catch (error) {
     console.error("Folder deletion failed:", error);
-    const errStr = "Internal Server Error: Folder deletion failed";
+    const errStr = "Internal Server Error";
     return customErr(res, 500, errStr);
   }
 };

@@ -51,7 +51,7 @@ export const registerUser = async (req, res) => {
     return customResp(res, 201, "User registration complete !");
   } catch (error) {
     console.error("User registration failed:", error);
-    const errStr = "Internal Server Error: User registration failed !";
+    const errStr = "Internal Server Error";
     return customErr(res, 500, errStr);
   }
 };
@@ -98,7 +98,7 @@ export const loginUser = async (req, res) => {
     return customResp(res, 200, "User login successful !");
   } catch (error) {
     console.error("User login failed:", error);
-    const errStr = "Internal Server Error: User login failed !";
+    const errStr = "Internal Server Error";
     return customErr(res, 500, errStr);
   }
 };
@@ -115,7 +115,7 @@ export const getUserDetails = async (req, res) => {
       return res.status(200).json({ name, email, picture });
     } catch (error) {
       console.error("Fetching user details failed:", error);
-      const errStr = "Internal Server Error: Fetching user details failed";
+      const errStr = "Internal Server Error";
       return customErr(res, 500, errStr);
     }
   }
@@ -128,7 +128,7 @@ export const getUserStorage = async (req, res) => {
     return res.status(200).json({ maxStorageInBytes, size });
   } catch (error) {
     console.error("Fetching user details failed:", error);
-    const errStr = "Internal Server Error: Fetching user details failed";
+    const errStr = "Internal Server Error";
     return customErr(res, 500, errStr);
   }
 };

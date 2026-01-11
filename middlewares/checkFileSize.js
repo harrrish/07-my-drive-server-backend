@@ -45,7 +45,7 @@ export const checkFileSize = async (req, res, next) => {
     next();
   } catch (error) {
     console.error("Failed to verify file details:", error);
-    const errStr = "Internal Server Error: Failed to verify file details";
+    const errStr = "Internal Server Error";
     return customErr(res, 500, errStr);
   }
 };

@@ -89,7 +89,7 @@ export const loginWithGoogle = async (req, res) => {
     }
   } catch (error) {
     console.error("Login failed using Google:", error);
-    const errStr = "Internal Server Error: Login failed using Google";
+    const errStr = "Internal Server Error";
     return customErr(res, 500, errStr);
   }
 };

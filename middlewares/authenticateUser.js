@@ -28,7 +28,7 @@ export default async function authenticateUser(req, res, next) {
     next();
   } catch (error) {
     console.error("Authentication failed:", error);
-    const errStr = "Internal Server Error: Authentication failed";
+    const errStr = "Internal Server Error";
     return customErr(res, 500, errStr);
   }
 }

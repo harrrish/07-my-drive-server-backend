@@ -34,7 +34,7 @@ export const verifyOTP = async (req, res) => {
     else return customResp(res, 200, "OTP verification completed !");
   } catch (error) {
     console.error("OTP verification failed:", error);
-    const errStr = "Internal Server Error: OTP verification failed";
+    const errStr = "Internal Server Error";
     return customErr(res, 500, "OTP verification failed !");
   }
 };
