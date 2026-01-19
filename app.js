@@ -11,6 +11,7 @@ import { asyncHandler } from "./utils/asyncHandler.js";
 import googleRouter from "./routes/googleRouter.js";
 import starredRouter from "./routes/starredRouter.js";
 import trashedRouter from "./routes/trashedRouter.js";
+import sharedRouter from "./routes/sharedRouter.js";
 
 connectDB();
 const PORT = process.env.PORT || 4000;
@@ -64,6 +65,7 @@ app.use("/file", authenticateUser, filesRouter);
 app.use("/directory", authenticateUser, directoryRouter);
 app.use("/star", authenticateUser, starredRouter);
 app.use("/trash", authenticateUser, trashedRouter);
+app.use("/share", authenticateUser, sharedRouter);
 app.use("/otp", otpRouter);
 app.use("/google", googleRouter);
 

@@ -54,8 +54,13 @@ const fileSchema = new Schema(
     },
     sharedWith: [
       {
-        type: Schema.Types.ObjectId,
-        ref: "User",
+        userID: {
+          type: Schema.Types.ObjectId,
+          ref: "User",
+        },
+        email: {
+          type: String,
+        },
       },
     ],
     isDeleted: {

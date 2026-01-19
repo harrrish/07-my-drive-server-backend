@@ -2,15 +2,15 @@ import path from "node:path";
 import FileModel from "../models/FileModel.js";
 import DirectoryModel from "../models/DirectoryModel.js";
 import {
-  createGetSignedUrl,
   createUploadSignedUrl,
   deleteS3File,
   getS3FileMetaData,
-} from "../configurations/s3.js";
+} from "../configurations/s3Config.js";
 import { validateMongoID } from "../utils/validateMongoID.js";
 import mime from "mime";
 import { editFolderSize } from "../utils/editFolderSize.js";
 import { customErr, customResp } from "../utils/customReturn.js";
+import { getSignedUrl } from "@aws-sdk/cloudfront-signer";
 
 //*===============>  INITIATE FILE UPLOAD
 export const uploadFileInitiate = async (req, res) => {
@@ -107,21 +107,47 @@ export const getFile = async (req, res) => {
     if (fileID) validateMongoID(res, fileID);
 
     const fileData = await FileModel.findOne({ _id: fileID, userID });
-
     if (!fileData)
       return customErr(res, 400, "File deleted or File access denied");
 
     const { name, extension } = fileData;
-    // console.log(req.query.action);
-    const download = req.query.action === "download";
-    // console.log(download);
+    console.log(name);
+    const cloudfrontURL = process.env.CLOUDFRONT_URL;
+
+    let url = "";
+
+    if (req.query.action === "download") {
+      const disposition = encodeURIComponent(`attachment; filename="${name}"`);
+      url = `${cloudfrontURL}/${fileID}${extension}?response-content-disposition=${disposition}`;
+    } else {
+      url = `${cloudfrontURL}/${fileID}${extension}`;
+    }
+
+    // console.log(url);
+
+    const cloudFrontUrl = getSignedUrl({
+      url,
+      keyPairId: process.env.CLOUDFRONT_KEY_PAIR_ID,
+      dateLessThan: new Date(Date.now() + 1000 * 60), //* 60 seconds
+      privateKey: process.env.CLOUDFRONT_PRIVATE_KEY.replace(/\\n/g, "\n"),
+    });
+
+    // console.log(`${process.env.CLOUDFRONT_URL}/${fileID}${extension}`);
+    // console.log(process.env.CLOUDFRONT_KEY_PAIR_ID);
+    // console.log(process.env.CLOUDFRONT_PRIVATE_KEY);
+
+    // console.log({ cloudFrontUrl });
+
+    /* //*s3 URL    
     const fileUrl = await createGetSignedUrl({
       key: `${fileID}${extension}`,
-      download,
+      download: req.query.action === "download",
       filename: name,
     });
-    // console.log(fileUrl);
+    console.log({ fileUrl })
     return res.redirect(fileUrl);
+     */
+    return res.redirect(cloudFrontUrl);
   } catch (error) {
     console.error("Failed to fetch file:", error);
     const errStr = "Internal Server Error";

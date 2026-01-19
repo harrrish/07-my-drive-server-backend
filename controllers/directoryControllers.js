@@ -3,10 +3,9 @@ import FileModel from "../models/FileModel.js";
 import { deleteDirContents } from "../utils/deleteDirectoryContents.js";
 import { folderSchema } from "../utils/zodAuthSchemas.js";
 import { validateMongoID } from "../utils/validateMongoID.js";
-import { deleteS3Files } from "../configurations/s3.js";
+import { deleteS3Files } from "../configurations/s3Config.js";
 import { editFolderSize } from "../utils/editFolderSize.js";
 import { customErr, customResp } from "../utils/customReturn.js";
-import { trashDirectoryContents } from "../utils/trashDirectoryContents.js";
 
 //*===============>  FETCHING FOLDERS & FILES
 export const getDirectoryContents = async (req, res, next) => {
