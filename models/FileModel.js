@@ -52,7 +52,7 @@ const fileSchema = new Schema(
       type: Boolean,
       default: false,
     },
-    sharedWith: [
+    sharedTo: [
       {
         userID: {
           type: Schema.Types.ObjectId,

@@ -36,6 +36,12 @@ const userSchema = new Schema(
       type: String,
       default: "",
     },
+    receivedContent: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "File",
+      },
+    ],
     maxStorageInBytes: {
       type: Number,
       default: 100 * 1024 ** 2,

@@ -2,8 +2,8 @@ import express from "express";
 import {
   addFileAccessController,
   filesSharedByUser,
-  filesSharedToUser,
-  removeFileAccessController,
+  filesSharedWithUser,
+  refuseFileAccessController,
   shareFileLinkController,
 } from "../controllers/sharedController.js";
 
@@ -15,13 +15,16 @@ sharedRouter.get("/file/url/:fileID", shareFileLinkController);
 //*===============>  ADD FILE ACCESS
 sharedRouter.post("/file/access/add", addFileAccessController);
 
-//*===============>  REMOVE FILE ACCESS
-sharedRouter.post("/file/access/remove", removeFileAccessController);
+//*===============>  REVOKE FILE ACCESS
+// sharedRouter.post("/file/access/revoke", refuseFileAccessController);
+
+//*===============>  REFUSE FILE ACCESS
+sharedRouter.post("/file/access/refuse", refuseFileAccessController);
 
 //*===============>  FILES SHARED BY USER
 sharedRouter.get("/file/by-user", filesSharedByUser);
 
 //*===============>  FILES SHARED WITH USER
-sharedRouter.post("/file/with-user", filesSharedToUser);
+sharedRouter.get("/file/with-user", filesSharedWithUser);
 
 export default sharedRouter;

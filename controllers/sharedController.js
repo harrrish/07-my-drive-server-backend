@@ -42,12 +42,14 @@ export const shareFileLinkController = async (req, res, next) => {
 
 export const addFileAccessController = async (req, res, next) => {
   const { email } = req.body;
-  if (req.user.email === email) return customErr(res, 404, "Self share !");
-
   const checkUserPresent = await UserModel.findOne({
     email,
     isDeleted: false,
   });
+
+  if (req.user._id.equals(checkUserPresent._id))
+    return customErr(res, 404, "Self share !");
+
   if (!checkUserPresent)
     return customErr(res, 404, "Email ID could not be found !");
 
@@ -61,53 +63,91 @@ export const addFileAccessController = async (req, res, next) => {
   }
 
   const userFriend = await UserModel.findOne({ email });
-  if (file.sharedWith.some((id) => id.equals(userFriend._id))) {
+  if (file.sharedTo.some((id) => id.equals(userFriend._id))) {
     return customErr(res, 400, "Access present !");
   }
 
-  file.sharedWith.push({ userID: userFriend._id, email });
+  file.sharedTo.push({ userID: userFriend._id, email });
   await file.save();
+
+  userFriend.receivedContent.push(file._id);
+  await userFriend.save();
 
   return customResp(res, 200, `File access shared to ${email} !`);
 };
 
-//* YET TO BE COMPLETED !
-export const removeFileAccessController = async (req, res, next) => {
-  const { email } = req.body;
-  if (req.user.email === email) return customErr(res, 404, "Self share !");
+export const refuseFileAccessController = async (req, res, next) => {
+  const currentUserID = req.user._id;
+  const { fileID, userID: ownerID } = req.body;
 
-  const checkUserPresent = await UserModel.findOne({
-    email,
-    isDeleted: false,
+  //* ACCESS REMOVED IN FILE
+  const fileExists = await FileModel.findOne({
+    _id: fileID,
+    userID: ownerID,
   });
-  if (!checkUserPresent)
-    return customErr(res, 404, "Email ID could not be found !");
-
-  const { _id } = req.body;
-  const file = await FileModel.findOne({
-    _id,
-    userID: req.user.id,
-  });
-  if (!file) {
+  if (!fileExists)
     return customErr(res, 400, "File not found or Access denied !");
-  }
-
-  const userFriend = await UserModel.findOne({ email });
-
-  await FileModel.updateOne(
-    { _id: file._id },
-    { $addToSet: { sharedWith: userFriend._id } },
+  const indexInFile = fileExists.sharedTo.findIndex((f) =>
+    f.userID.equals(currentUserID),
   );
+  //   console.log(indexInFile);
+  if (indexInFile === -1)
+    return customErr(res, 400, "File not found or Access denied !");
+
+  //* ACCESS REMOVED IN FILE
+  const userReceived = await UserModel.findById(currentUserID);
+  const indexInUser = userReceived.receivedContent.findIndex((v) =>
+    v.equals(fileID),
+  );
+
+  if (indexInUser === -1)
+    return customErr(res, 400, "File not found or Access denied !");
+  fileExists.sharedTo.splice(indexInFile, 1);
+  await fileExists.save();
+
+  userReceived.receivedContent.splice(indexInFile, 1);
+  await userReceived.save();
+
+  return customResp(res, 200, `Access refused by ${userReceived.name} !`);
 };
 
 export const filesSharedByUser = async (req, res, next) => {
-  const files = await FileModel.find({
-    userID: req.user._id,
-    sharedWith: { $exists: true, $ne: [] },
-  }).select("_id name sharedWith");
-
-  //   console.log(files);
-  return res.status(200).json({ files, filesCount: files.length });
+  try {
+    const files = await FileModel.find({
+      userID: req.user._id,
+      sharedTo: { $exists: true, $ne: [] },
+    }).select("_id name sharedTo");
+    return res.status(200).json({ files, filesCount: files.length });
+  } catch (error) {
+    console.error("Failed to fetch file:", error);
+    const errStr = "Internal Server Error";
+    return customErr(res, 500, errStr);
+  }
 };
 
-export const filesSharedToUser = async (req, res, next) => {};
+export const filesSharedWithUser = async (req, res, next) => {
+  try {
+    const filesList = req.user.receivedContent;
+    const files = [];
+    for await (const fileID of filesList) {
+      //   console.log({ fileID });
+      const fileInfo = await FileModel.findById(fileID);
+      //   console.log({ fileInfo });
+      const userInfo = await UserModel.findOne({
+        _id: fileInfo.userID,
+      });
+      files.push({
+        fileID: fileInfo._id,
+        filename: fileInfo.name,
+        userID: userInfo._id,
+        userEmail: userInfo.email,
+      });
+    }
+    //   console.log({ files });
+    return res.status(200).json({ files, filesCount: files.length });
+  } catch (error) {
+    console.error("Failed to fetch file:", error);
+    const errStr = "Internal Server Error";
+    return customErr(res, 500, errStr);
+  }
+};
