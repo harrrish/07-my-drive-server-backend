@@ -1,4 +1,5 @@
 import path from "node:path";
+import mime from "mime";
 import FileModel from "../models/FileModel.js";
 import DirectoryModel from "../models/DirectoryModel.js";
 import {
@@ -7,7 +8,6 @@ import {
   getS3FileMetaData,
 } from "../configurations/s3Config.js";
 import { validateMongoID } from "../utils/validateMongoID.js";
-import mime from "mime";
 import { editFolderSize } from "../utils/editFolderSize.js";
 import { customErr, customResp } from "../utils/customReturn.js";
 import { getSignedUrl } from "@aws-sdk/cloudfront-signer";
