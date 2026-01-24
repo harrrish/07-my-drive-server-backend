@@ -49,6 +49,25 @@ app.get(
     });
   }),
 );
+//* DEFAULT ENDPOINT
+app.get(
+  "/test",
+  asyncHandler(async (req, res) => {
+    return res.status(200).json({
+      success: true,
+    });
+  }),
+);
+//* DEFAULT ENDPOINT
+app.get(
+  "/demo",
+  asyncHandler(async (req, res) => {
+    return res.status(200).json({
+      success: true,
+      message: "Welcome to UVDS-My Drive!",
+    });
+  }),
+);
 
 //* GITHUB WEBHOOK
 app.post(
