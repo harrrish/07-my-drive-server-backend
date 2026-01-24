@@ -76,9 +76,9 @@ app.get(
 //* GITHUB WEBHOOK
 //* SERVER
 app.post("/server-github-webhook", (req, res) => {
-  console.log("headers", req.headers);
-  console.log("body", req.body);
-  res.json({ msg: "ok" });
+  // console.log("headers", req.headers);
+  // console.log("body", req.body);
+  // res.json({ msg: "ok" });
   const bashChildProcess = spawn("bash", ["/usr/harish/server.sh"]);
 
   bashChildProcess.stdout.on("data", (data) => {
