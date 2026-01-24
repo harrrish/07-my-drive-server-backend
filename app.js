@@ -79,10 +79,11 @@ app.post("/server-github-webhook", (req, res) => {
   // console.log("headers", req.headers);
   // console.log("body", req.body);
   // res.json({ msg: "ok" });
+  console.log("Reached webhook");
   const bashChildProcess = spawn("bash", ["/usr/harish/server.sh"]);
-
+  console.log("spawn started");
   bashChildProcess.stdout.on("data", (data) => {
-    // process.stdout.write(data);
+    process.stdout.write({ data });
   });
 
   bashChildProcess.stderr.on("data", (data) => {
