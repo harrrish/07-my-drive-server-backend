@@ -13,6 +13,7 @@ import starredRouter from "./routes/starredRouter.js";
 import trashedRouter from "./routes/trashedRouter.js";
 import sharedRouter from "./routes/sharedRouter.js";
 import { spawn } from "child_process";
+import { serverDeploySuccess } from "./utils/DeployServerSuccess.js";
 
 connectDB();
 const PORT = process.env.PORT || 4000;
@@ -90,12 +91,26 @@ app.get(
 }); */
 //* BETTER VERSION
 app.post("/server-github-webhook", (req, res) => {
-  spawn("bash", ["/usr/harish/server.sh"], {
-    detached: true,
-    stdio: "ignore",
-  }).unref();
+  console.log("Server-Code Deployment request received");
+  try {
+    spawn("bash", ["/usr/harish/server.sh"], {
+      detached: true,
+      stdio: "ignore",
+    }).unref();
 
-  res.status(200).json({ message: "Deployment triggered" });
+    console.log("Server-Code Deployment process started successfully");
+    serverDeploySuccess();
+
+    res.status(200).json({
+      message: "Deployment triggered",
+    });
+  } catch (err) {
+    console.error("Server-Code Failed to start deployment", err);
+
+    res.status(500).json({
+      message: "Failed to trigger deployment",
+    });
+  }
 });
 app.use("/user", userRouter);
 app.use("/file", authenticateUser, filesRouter);
