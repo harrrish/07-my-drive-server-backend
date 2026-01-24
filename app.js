@@ -12,6 +12,7 @@ import googleRouter from "./routes/googleRouter.js";
 import starredRouter from "./routes/starredRouter.js";
 import trashedRouter from "./routes/trashedRouter.js";
 import sharedRouter from "./routes/sharedRouter.js";
+import { spawn } from "child_process";
 
 connectDB();
 const PORT = process.env.PORT || 4000;
@@ -45,10 +46,11 @@ app.get(
       success: true,
       message: "Welcome to UVDS-My Drive!",
       developer: "Harish S",
-      email: "harrrish1906@gmail.com",
+      email: "harishs1906@outlook.com",
     });
   }),
 );
+
 //* Test 1
 app.get(
   "/test",
@@ -59,26 +61,48 @@ app.get(
     });
   }),
 );
-//* Test 2
-// app.get(
-//   "/demo",
-//   asyncHandler(async (req, res) => {
-//     return res.status(200).json({
-//       success: true,
-//       message: "Test 2",
-//     });
-//   }),
-// );
 
-//* GITHUB WEBHOOK
-app.post(
-  "/frontend-github-webhook",
+//* Test 2
+/* app.get(
+  "/demo",
   asyncHandler(async (req, res) => {
     return res.status(200).json({
-      message: "OK",
+      success: true,
+      message: "Test 2",
     });
   }),
-);
+); */
+
+//* GITHUB WEBHOOK
+//* SERVER
+app.post("/server-github-webhook", (req, res) => {
+  const bashChildProcess = spawn("bash", ["/usr/harish/server.sh"]);
+
+  bashChildProcess.stdout.on("data", (data) => {
+    process.stdout.write(data);
+  });
+
+  bashChildProcess.stderr.on("data", (data) => {
+    console.log("Error:");
+    process.stderr.write(data);
+  });
+
+  bashChildProcess.on("close", (code) => {
+    res.json({ message: "OK" });
+
+    if (code === 0) {
+      console.log("Script executed successfully !");
+    } else {
+      console.log("Script execution failed !");
+    }
+  });
+
+  bashChildProcess.on("error", (data) => {
+    res.json({ message: "OK" });
+    console.log("Error while spawning");
+    process.stderr.write(data);
+  });
+});
 
 app.use("/user", userRouter);
 app.use("/file", authenticateUser, filesRouter);
