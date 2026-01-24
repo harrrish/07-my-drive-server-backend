@@ -45,26 +45,16 @@ app.get(
     return res.status(200).json({
       success: true,
       message: "Welcome to UVDS-My Drive!",
-      developer: "Harish S",
+      developedBy: "Harish S",
       email: "harishs1906@outlook.com",
-    });
-  }),
-);
-
-//* Demo
-app.get(
-  "/demo",
-  asyncHandler(async (req, res) => {
-    return res.status(200).json({
-      success: true,
-      message: "last - Demo route",
+      contact: "7019412992",
     });
   }),
 );
 
 //* GITHUB WEBHOOK
 //* SERVER
-app.post("/server-github-webhook", (req, res) => {
+/* app.post("/server-github-webhook", (req, res) => {
   const bashChildProcess = spawn("bash", ["/usr/harish/server.sh"], {
     detached: true,
     stdio: "ignore",
@@ -97,8 +87,16 @@ app.post("/server-github-webhook", (req, res) => {
   });
 
   res.status(200).json({ message: "Deployment success !!" });
-});
+}); */
+//* BETTER VERSION
+app.post("/server-github-webhook", (req, res) => {
+  spawn("bash", ["/usr/harish/server.sh"], {
+    detached: true,
+    stdio: "ignore",
+  }).unref();
 
+  res.status(200).json({ message: "Deployment triggered" });
+});
 app.use("/user", userRouter);
 app.use("/file", authenticateUser, filesRouter);
 app.use("/directory", authenticateUser, directoryRouter);
