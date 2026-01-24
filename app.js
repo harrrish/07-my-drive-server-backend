@@ -51,24 +51,24 @@ app.get(
   }),
 );
 
-//* Test 1
+//* Demo 1
 app.get(
-  "/test-1",
+  "/demo-1",
   asyncHandler(async (req, res) => {
     return res.status(200).json({
       success: true,
-      message: "Test 1",
+      message: "Demo 1",
     });
   }),
 );
 
-//* Test 2
+//* Demo 2
 app.get(
-  "/test-2",
+  "/demo-2",
   asyncHandler(async (req, res) => {
     return res.status(200).json({
       success: true,
-      message: "Test 2",
+      message: "Demo 2",
     });
   }),
 );
