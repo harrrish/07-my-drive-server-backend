@@ -57,7 +57,7 @@ app.get(
   asyncHandler(async (req, res) => {
     return res.status(200).json({
       success: true,
-      message: "Demo",
+      message: "Demo route",
     });
   }),
 );
@@ -65,20 +65,16 @@ app.get(
 //* GITHUB WEBHOOK
 //* SERVER
 app.post("/server-github-webhook", (req, res) => {
-  // console.log("headers", req.headers);
-  // console.log("body", req.body);
-  // res.json({ msg: "ok" });
-  console.log("Reached webhook");
   const bashChildProcess = spawn("bash", ["/usr/harish/server.sh"]);
-  console.log("spawn started");
-  bashChildProcess.stdout.on("data", (data) => {
-    process.stdout.write({ data });
-  });
 
-  bashChildProcess.stderr.on("data", (data) => {
-    console.log("Error Occured");
-    // process.stderr.write(data);
-  });
+  // bashChildProcess.stdout.on("data", (data) => {
+  //   process.stdout.write({ data });
+  // });
+
+  // bashChildProcess.stderr.on("data", (data) => {
+  //   console.log("Error Occured");
+  //   process.stderr.write(data);
+  // });
 
   bashChildProcess.on("close", (code) => {
     res.json({ message: "OK" });
