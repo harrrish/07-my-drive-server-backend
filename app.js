@@ -63,7 +63,7 @@ app.get(
 );
 
 //* Test 2
-/* app.get(
+app.get(
   "/demo",
   asyncHandler(async (req, res) => {
     return res.status(200).json({
@@ -71,7 +71,7 @@ app.get(
       message: "Test 2",
     });
   }),
-); */
+);
 
 //* GITHUB WEBHOOK
 //* SERVER
@@ -79,32 +79,32 @@ app.post("/server-github-webhook", (req, res) => {
   console.log("headers", req.headers);
   console.log("body", req.body);
   res.json({ msg: "ok" });
-  // const bashChildProcess = spawn("bash", ["/usr/harish/server.sh"]);
+  const bashChildProcess = spawn("bash", ["/usr/harish/server.sh"]);
 
-  // bashChildProcess.stdout.on("data", (data) => {
-  //   process.stdout.write(data);
-  // });
+  bashChildProcess.stdout.on("data", (data) => {
+    process.stdout.write(data);
+  });
 
-  // bashChildProcess.stderr.on("data", (data) => {
-  //   console.log("Error:");
-  //   process.stderr.write(data);
-  // });
+  bashChildProcess.stderr.on("data", (data) => {
+    console.log("Error:");
+    process.stderr.write(data);
+  });
 
-  // bashChildProcess.on("close", (code) => {
-  //   res.json({ message: "OK" });
+  bashChildProcess.on("close", (code) => {
+    res.json({ message: "OK" });
 
-  //   if (code === 0) {
-  //     console.log("Script executed successfully !");
-  //   } else {
-  //     console.log("Script execution failed !");
-  //   }
-  // });
+    if (code === 0) {
+      console.log("Script executed successfully !");
+    } else {
+      console.log("Script execution failed !");
+    }
+  });
 
-  // bashChildProcess.on("error", (data) => {
-  //   res.json({ message: "OK" });
-  //   console.log("Error while spawning");
-  //   process.stderr.write(data);
-  // });
+  bashChildProcess.on("error", (data) => {
+    res.json({ message: "OK" });
+    console.log("Error while spawning");
+    process.stderr.write(data);
+  });
 });
 
 app.use("/user", userRouter);
