@@ -90,20 +90,14 @@ app.get(
 }); */
 //* BETTER VERSION
 app.post("/server-github-webhook", (req, res) => {
-  console.log("Server-Code Deployment request received");
-  try {
-    spawn("bash", ["/usr/harish/server.sh"], {
-      detached: true,
-      stdio: "ignore",
-    }).unref();
-    console.log("Server-Code Deployment process started");
-    res.status(200).json({
-      message: "Deployment triggered",
-    });
-  } catch (err) {
-    console.error("Failed to trigger deployment", err);
-    res.status(500).json({ message: "Deployment trigger failed" });
-  }
+  res.status(200).json({ message: "Server Deployment triggered" });
+
+  console.log("Server-Code Deployment process started");
+
+  spawn("bash", ["/usr/harish/server.sh"], {
+    detached: true,
+    stdio: "ignore",
+  }).unref();
 });
 
 //* CLIENT
