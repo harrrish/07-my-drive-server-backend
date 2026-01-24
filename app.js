@@ -108,22 +108,21 @@ app.post("/server-github-webhook", (req, res) => {
 
 //* CLIENT
 app.post("/client-github-webhook", (req, res) => {
-  console.log(req.headers);
-  res.json({ msg: "sad" });
-  // console.log("Client-Code Deployment request received");
-  // try {
-  //   spawn("bash", ["/usr/harish/client.sh"], {
-  //     detached: true,
-  //     stdio: "ignore",
-  //   }).unref();
-  //   console.log("Client-Code Deployment process started");
-  //   res.status(200).json({
-  //     message: "Deployment triggered",
-  //   });
-  // } catch (err) {
-  //   console.error("Failed to trigger deployment", err);
-  //   res.status(500).json({ message: "Deployment trigger failed" });
-  // }
+  // console.log(req.headers);
+  console.log("Client-Code Deployment request received");
+  try {
+    spawn("bash", ["/usr/harish/client.sh"], {
+      detached: true,
+      stdio: "ignore",
+    }).unref();
+    console.log("Client-Code Deployment process started");
+    res.status(200).json({
+      message: "Deployment triggered",
+    });
+  } catch (err) {
+    console.error("Failed to trigger deployment", err);
+    res.status(500).json({ message: "Deployment trigger failed" });
+  }
 });
 
 app.use("/user", userRouter);
