@@ -65,11 +65,16 @@ app.get(
 //* GITHUB WEBHOOK
 //* SERVER
 app.post("/server-github-webhook", (req, res) => {
-  const bashChildProcess = spawn("bash", ["/usr/harish/server.sh"]);
+  const bashChildProcess = spawn("bash", ["/usr/harish/server.sh"], {
+    detached: true,
+    stdio: "ignore",
+  });
 
-  // bashChildProcess.stdout.on("data", (data) => {
-  //   process.stdout.write({ data });
-  // });
+  child.unref();
+
+  bashChildProcess.stdout.on("data", (data) => {
+    console.log(data.toString());
+  });
 
   // bashChildProcess.stderr.on("data", (data) => {
   //   console.log("Error Occured");
@@ -90,6 +95,8 @@ app.post("/server-github-webhook", (req, res) => {
     console.log("Error while spawning");
     process.stderr.write(data);
   });
+
+  res.status(200).json({ message: "Deployment success !!" });
 });
 
 app.use("/user", userRouter);
