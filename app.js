@@ -53,7 +53,7 @@ app.get(
 
 //* Test 1
 app.get(
-  "/test",
+  "/test-1",
   asyncHandler(async (req, res) => {
     return res.status(200).json({
       success: true,
@@ -64,7 +64,7 @@ app.get(
 
 //* Test 2
 app.get(
-  "/demo",
+  "/test-2",
   asyncHandler(async (req, res) => {
     return res.status(200).json({
       success: true,
