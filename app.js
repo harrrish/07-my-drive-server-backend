@@ -112,16 +112,7 @@ app.post("/client-github-webhook", (req, res) => {
 
   console.log("Client-Code Deployment process started");
 
-  const env = {
-    ...process.env,
-    AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
-    AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
-    AWS_DEFAULT_REGION: "ap-south-1",
-    PATH: process.env.PATH,
-    HOME: process.env.HOME || "/home/ubuntu", // Important for AWS config
-  };
-
-  const child = spawn("bash", ["/usr/harish/client.sh"], { env });
+  const child = spawn("bash", ["/usr/harish/client.sh"]);
 
   child.stdout.on("data", (data) => {
     console.log("[CLIENT DEPLOY STDOUT]", data.toString());
