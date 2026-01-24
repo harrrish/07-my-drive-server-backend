@@ -82,17 +82,16 @@ app.post("/server-github-webhook", (req, res) => {
   const bashChildProcess = spawn("bash", ["/usr/harish/server.sh"]);
 
   bashChildProcess.stdout.on("data", (data) => {
-    process.stdout.write(data);
+    // process.stdout.write(data);
   });
 
   bashChildProcess.stderr.on("data", (data) => {
-    console.log("Error:");
-    process.stderr.write(data);
+    console.log("Error Occured");
+    // process.stderr.write(data);
   });
 
   bashChildProcess.on("close", (code) => {
     res.json({ message: "OK" });
-
     if (code === 0) {
       console.log("Script executed successfully !");
     } else {
