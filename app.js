@@ -13,7 +13,6 @@ import starredRouter from "./routes/starredRouter.js";
 import trashedRouter from "./routes/trashedRouter.js";
 import sharedRouter from "./routes/sharedRouter.js";
 import { spawn } from "child_process";
-import { serverDeploySuccess } from "./utils/Deploy Server Success Email.js";
 
 connectDB();
 const PORT = process.env.PORT || 4000;
