@@ -49,25 +49,26 @@ app.get(
     });
   }),
 );
-//* DEFAULT ENDPOINT
+//* Test 1
 app.get(
   "/test",
   asyncHandler(async (req, res) => {
     return res.status(200).json({
       success: true,
+      message: "Test 1",
     });
   }),
 );
-//* DEFAULT ENDPOINT
-app.get(
-  "/demo",
-  asyncHandler(async (req, res) => {
-    return res.status(200).json({
-      success: true,
-      message: "Welcome to UVDS-My Drive!",
-    });
-  }),
-);
+//* Test 2
+// app.get(
+//   "/demo",
+//   asyncHandler(async (req, res) => {
+//     return res.status(200).json({
+//       success: true,
+//       message: "Test 2",
+//     });
+//   }),
+// );
 
 //* GITHUB WEBHOOK
 app.post(
