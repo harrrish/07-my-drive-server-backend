@@ -57,7 +57,7 @@ app.get(
   asyncHandler(async (req, res) => {
     return res.status(200).json({
       success: true,
-      message: "Demo 1",
+      message: "Demo",
     });
   }),
 );
