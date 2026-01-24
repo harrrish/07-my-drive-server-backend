@@ -57,7 +57,7 @@ app.get(
   asyncHandler(async (req, res) => {
     return res.status(200).json({
       success: true,
-      message: "Demo route",
+      message: "last - Demo route",
     });
   }),
 );
@@ -70,11 +70,11 @@ app.post("/server-github-webhook", (req, res) => {
     stdio: "ignore",
   });
 
-  child.unref();
+  bashChildProcess.unref();
 
-  bashChildProcess.stdout.on("data", (data) => {
-    console.log(data.toString());
-  });
+  // bashChildProcess.stdout.on("data", (data) => {
+  //   console.log(data.toString());
+  // });
 
   // bashChildProcess.stderr.on("data", (data) => {
   //   console.log("Error Occured");
