@@ -108,21 +108,22 @@ app.post("/server-github-webhook", (req, res) => {
 
 //* CLIENT
 app.post("/client-github-webhook", (req, res) => {
-  console.log("Client-Code Deployment request received");
-  const child = spawn("bash", ["/usr/harish/client.sh"], {
-    env: process.env,
-  });
+  res.status(200).json({ message: "Client Deployment triggered" });
+
+  console.log("Client-Code Deployment process started");
+
+  const child = spawn("bash", ["/usr/harish/client.sh"]);
+
   child.stdout.on("data", (data) => {
     console.log("[CLIENT DEPLOY STDOUT]", data.toString());
   });
+
   child.stderr.on("data", (data) => {
     console.error("[CLIENT DEPLOY STDERR]", data.toString());
   });
+
   child.on("close", (code) => {
     console.log(`Client deploy finished with code ${code}`);
-  });
-  res.status(200).json({
-    message: "Client deployment started",
   });
 });
 
