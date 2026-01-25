@@ -1,3 +1,4 @@
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -15,7 +16,6 @@ import sharedRouter from "./routes/sharedRouter.js";
 import { spawn } from "child_process";
 import crypto from "crypto";
 import { customErr, customResp } from "./utils/customReturn.js";
-import "dotenv/config";
 
 connectDB();
 const PORT = process.env.PORT || 4000;
