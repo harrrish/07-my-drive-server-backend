@@ -1,5 +1,7 @@
 import { createClient } from "redis";
 
+// console.log("redis", process.env.REDIS_URL);
+
 const client = createClient({
   url: process.env.REDIS_URL,
   socket: {

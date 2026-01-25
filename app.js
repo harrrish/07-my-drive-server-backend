@@ -15,8 +15,7 @@ import sharedRouter from "./routes/sharedRouter.js";
 import { spawn } from "child_process";
 import crypto from "crypto";
 import { customErr, customResp } from "./utils/customReturn.js";
-import dotenv from "dotenv";
-dotenv.config();
+import "dotenv/config";
 
 connectDB();
 const PORT = process.env.PORT || 4000;
