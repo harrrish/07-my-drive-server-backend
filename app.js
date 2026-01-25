@@ -13,6 +13,8 @@ import starredRouter from "./routes/starredRouter.js";
 import trashedRouter from "./routes/trashedRouter.js";
 import sharedRouter from "./routes/sharedRouter.js";
 import { spawn } from "child_process";
+import crypto from "crypto";
+import { customErr } from "./utils/customReturn.js";
 
 connectDB();
 const PORT = process.env.PORT || 4000;
@@ -54,91 +56,64 @@ app.get(
 
 //* GITHUB WEBHOOK
 //* SERVER
-/* app.post("/server-github-webhook", (req, res) => {
-  const bashChildProcess = spawn("bash", ["/usr/harish/server.sh"], {
-    detached: true,
-    stdio: "ignore",
-  });
-
-  bashChildProcess.unref();
-
-  // bashChildProcess.stdout.on("data", (data) => {
-  //   console.log(data.toString());
-  // });
-
-  // bashChildProcess.stderr.on("data", (data) => {
-  //   console.log("Error Occured");
-  //   process.stderr.write(data);
-  // });
-
-  bashChildProcess.on("close", (code) => {
-    res.json({ message: "OK" });
-    if (code === 0) {
-      console.log("Script executed successfully !");
-    } else {
-      console.log("Script execution failed !");
-    }
-  });
-
-  bashChildProcess.on("error", (data) => {
-    res.json({ message: "OK" });
-    console.log("Error while spawning");
-    process.stderr.write(data);
-  });
-
-  res.status(200).json({ message: "Deployment success !!" });
-}); */
-//* BETTER VERSION
 app.post("/server-github-webhook", (req, res) => {
-  res.status(200).json({ message: "Server Deployment triggered" });
+  const receivedSignature = req.headers["X-Hub-Signature-256"];
+  if (!receivedSignature) return customErr(res, 401, "Invalid Signature !");
 
-  console.log("Server-Code Deployment process started");
+  const calculatedSignature = `sha256${crypto
+    .createHmac("sha256", process.env.GITHUB_SECRET)
+    .update(JSON.stringify(req.body))
+    .digest("hex")}`;
 
-  const child = spawn("bash", ["/usr/harish/server.sh"]);
+  if (receivedSignature !== calculatedSignature) {
+    console.log("Signature match failed !");
+    return customErr(res, 403, "Invalid Signature !");
+  } else {
+    res.status(200).json({ message: "Server Deployment triggered" });
+    console.log("Server-Code Deployment process started");
 
-  child.stdout.on("data", (data) => {
-    console.log("[SERVER DEPLOY STDOUT]", data.toString());
-  });
-
-  child.stderr.on("data", (data) => {
-    console.error("[SERVER DEPLOY STDERR]", data.toString());
-  });
-
-  child.on("close", (code) => {
-    console.log(`Backend deployment finished with code ${code}`);
-
-    if (code === 0) {
-      console.log("Backend deployment SUCCESS");
-    } else {
-      console.error("Backend deployment FAILED");
-    }
-  });
+    const child = spawn("bash", ["/usr/harish/server.sh"]);
+    child.stdout.on("data", (data) => {
+      console.log("[SERVER DEPLOY STDOUT]", data.toString());
+    });
+    child.stderr.on("data", (data) => {
+      console.error("[SERVER DEPLOY STDERR]", data.toString());
+    });
+    child.on("close", (code) => {
+      console.log(`Backend deployment finished with code ${code}`);
+      if (code === 0) console.log("Backend deployment SUCCESS");
+      else console.error("Backend deployment FAILED");
+    });
+  }
 });
 
 //* CLIENT
 app.post("/client-github-webhook", (req, res) => {
-  res.status(200).json({ message: "Client Deployment triggered" });
-  console.log("Client-Code Deployment process started");
+  const receivedSignature = req.headers["X-Hub-Signature-256"];
+  if (!receivedSignature) return customErr(res, 401, "Invalid Signature !");
 
-  const child = spawn("bash", ["/usr/harish/client.sh"]);
+  const calculatedSignature = `sha256${crypto
+    .createHmac("sha256", process.env.GITHUB_SECRET)
+    .update(JSON.stringify(req.body))
+    .digest("hex")}`;
 
-  child.stdout.on("data", (data) => {
-    console.log("[CLIENT DEPLOY STDOUT]", data.toString());
-  });
+  if (receivedSignature !== calculatedSignature) {
+    res.status(200).json({ message: "Client Deployment triggered" });
+    console.log("Client-Code Deployment process started");
 
-  child.stderr.on("data", (data) => {
-    console.error("[CLIENT DEPLOY STDERR]", data.toString());
-  });
-
-  child.on("close", (code) => {
-    console.log(`Frontend deployment finished with code ${code}`);
-
-    if (code === 0) {
-      console.log("Frontend deployment SUCCESS");
-    } else {
-      console.error("Frontend deployment FAILED");
-    }
-  });
+    const child = spawn("bash", ["/usr/harish/client.sh"]);
+    child.stdout.on("data", (data) => {
+      console.log("[CLIENT DEPLOY STDOUT]", data.toString());
+    });
+    child.stderr.on("data", (data) => {
+      console.error("[CLIENT DEPLOY STDERR]", data.toString());
+    });
+    child.on("close", (code) => {
+      console.log(`Frontend deployment finished with code ${code}`);
+      if (code === 0) console.log("Frontend deployment SUCCESS");
+      else console.error("Frontend deployment FAILED");
+    });
+  }
 });
 
 app.use("/user", userRouter);
