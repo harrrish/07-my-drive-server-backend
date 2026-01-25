@@ -14,7 +14,7 @@ import trashedRouter from "./routes/trashedRouter.js";
 import sharedRouter from "./routes/sharedRouter.js";
 import { spawn } from "child_process";
 import crypto from "crypto";
-import { customErr } from "./utils/customReturn.js";
+import { customErr, customResp } from "./utils/customReturn.js";
 
 connectDB();
 const PORT = process.env.PORT || 4000;
@@ -69,8 +69,8 @@ app.post("/server-github-webhook", (req, res) => {
     console.log("Signature match failed !");
     return customErr(res, 403, "Invalid Signature !");
   } else {
-    res.status(200).json({ message: "Server Deployment triggered" });
-    console.log("Server-Code Deployment process started");
+    customResp(res, 200, "Server-Code Deployment process started !");
+    console.log("Server-Code Deployment process started !");
 
     const child = spawn("bash", ["/usr/harish/server.sh"]);
     child.stdout.on("data", (data) => {
@@ -98,8 +98,8 @@ app.post("/client-github-webhook", (req, res) => {
     .digest("hex")}`;
 
   if (receivedSignature !== calculatedSignature) {
-    res.status(200).json({ message: "Client Deployment triggered" });
-    console.log("Client-Code Deployment process started");
+    customResp(res, 200, "Client-Code Deployment process started !");
+    console.log("Client-Code Deployment process started !");
 
     const child = spawn("bash", ["/usr/harish/client.sh"]);
     child.stdout.on("data", (data) => {
