@@ -105,10 +105,10 @@ app.post("/client-github-webhook", (req, res) => {
     console.log("Client-Code Deployment process started !");
 
     // DEBUG: Check what AWS credentials are available
-    console.log("DEBUG - AWS Credentials in Node.js:");
-    console.log("AWS_REGION:", process.env.AWS_REGION);
-    console.log("AWS_ACCESS_KEY_ID:", process.env.AWS_ACCESS_KEY_ID);
-    console.log("AWS_SECRET_ACCESS_KEY:", process.env.AWS_SECRET_ACCESS_KEY);
+    // console.log("DEBUG - AWS Credentials in Node.js:");
+    // console.log("AWS_REGION:", process.env.AWS_REGION);
+    // console.log("AWS_ACCESS_KEY_ID:", process.env.AWS_ACCESS_KEY_ID);
+    // console.log("AWS_SECRET_ACCESS_KEY:", process.env.AWS_SECRET_ACCESS_KEY);
 
     const child = spawn("bash", ["/usr/harish/client.sh"], {
       env: {
