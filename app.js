@@ -111,7 +111,11 @@ app.post("/client-github-webhook", (req, res) => {
     console.log("AWS_SECRET_ACCESS_KEY:", process.env.AWS_SECRET_ACCESS_KEY);
 
     const child = spawn("bash", ["/usr/harish/client.sh"], {
-      env: process.env,
+      env: {
+        PATH: process.env.PATH,
+        HOME: process.env.HOME,
+        AWS_REGION: "ap-south-1",
+      },
     });
     child.stdout.on("data", (data) => {
       console.log("[CLIENT DEPLOY STDOUT]", data.toString());
