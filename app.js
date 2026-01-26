@@ -98,6 +98,9 @@ app.post("/client-github-webhook", (req, res) => {
     .digest("hex")}`;
 
   if (receivedSignature !== calculatedSignature) {
+    console.log("Signature match failed !");
+    return customErr(res, 403, "Invalid Signature !");
+  } else {
     customResp(res, 200, "Client-Code Deployment process started !");
     console.log("Client-Code Deployment process started !");
 
