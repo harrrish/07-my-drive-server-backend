@@ -55,11 +55,9 @@ app.get(
   }),
 );
 
-//* GITHUB WEBHOOK
-//* SERVER
+//* GITHUB WEBHOOK: SERVER
 app.post("/server-github-webhook", (req, res) => {
   const receivedSignature = req.headers["x-hub-signature-256"];
-  console.log(req.headers["x-hub-signature-256"]);
   if (!receivedSignature) return customErr(res, 401, "Invalid Signature !");
 
   const calculatedSignature = `sha256=${crypto
@@ -89,7 +87,7 @@ app.post("/server-github-webhook", (req, res) => {
   }
 });
 
-//* CLIENT
+//* GITHUB WEBHOOK: CLIENT
 app.post("/client-github-webhook", (req, res) => {
   const receivedSignature = req.headers["x-hub-signature-256"];
   if (!receivedSignature) return customErr(res, 401, "Invalid Signature !");
@@ -103,7 +101,9 @@ app.post("/client-github-webhook", (req, res) => {
     customResp(res, 200, "Client-Code Deployment process started !");
     console.log("Client-Code Deployment process started !");
 
-    const child = spawn("bash", ["/usr/harish/client.sh"]);
+    const child = spawn("bash", ["/usr/harish/client.sh"], {
+      env: process.env,
+    });
     child.stdout.on("data", (data) => {
       console.log("[CLIENT DEPLOY STDOUT]", data.toString());
     });
