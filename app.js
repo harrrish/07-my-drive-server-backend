@@ -92,7 +92,7 @@ app.post("/client-github-webhook", (req, res) => {
   const receivedSignature = req.headers["x-hub-signature-256"];
   if (!receivedSignature) return customErr(res, 401, "Invalid Signature !");
 
-  const calculatedSignature = `sha=256${crypto
+  const calculatedSignature = `sha256=${crypto
     .createHmac("sha256", process.env.GITHUB_SECRET)
     .update(JSON.stringify(req.body))
     .digest("hex")}`;
