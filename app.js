@@ -87,50 +87,6 @@ app.post("/server-github-webhook", (req, res) => {
   }
 });
 
-//* GITHUB WEBHOOK: CLIENT
-app.post("/client-github-webhook", (req, res) => {
-  const receivedSignature = req.headers["x-hub-signature-256"];
-  if (!receivedSignature) return customErr(res, 401, "Invalid Signature !");
-
-  const calculatedSignature = `sha256=${crypto
-    .createHmac("sha256", process.env.GITHUB_SECRET)
-    .update(JSON.stringify(req.body))
-    .digest("hex")}`;
-
-  if (receivedSignature !== calculatedSignature) {
-    console.log("Signature match failed !");
-    return customErr(res, 403, "Invalid Signature !");
-  } else {
-    customResp(res, 200, "Client-Code Deployment process started !");
-    console.log("Client-Code Deployment process started !");
-
-    // DEBUG: Check what AWS credentials are available
-    // console.log("DEBUG - AWS Credentials in Node.js:");
-    // console.log("AWS_REGION:", process.env.AWS_REGION);
-    // console.log("AWS_ACCESS_KEY_ID:", process.env.AWS_ACCESS_KEY_ID);
-    // console.log("AWS_SECRET_ACCESS_KEY:", process.env.AWS_SECRET_ACCESS_KEY);
-
-    const child = spawn("bash", ["/usr/harish/client.sh"], {
-      env: {
-        PATH: process.env.PATH,
-        HOME: process.env.HOME,
-        AWS_REGION: "ap-south-1",
-      },
-    });
-    child.stdout.on("data", (data) => {
-      console.log("[CLIENT DEPLOY STDOUT]", data.toString());
-    });
-    child.stderr.on("data", (data) => {
-      console.error("[CLIENT DEPLOY STDERR]", data.toString());
-    });
-    child.on("close", (code) => {
-      console.log(`Frontend deployment finished with code ${code}`);
-      if (code === 0) console.log("Frontend deployment SUCCESS");
-      else console.error("Frontend deployment FAILED");
-    });
-  }
-});
-
 app.use("/user", userRouter);
 app.use("/file", authenticateUser, filesRouter);
 app.use("/directory", authenticateUser, directoryRouter);
