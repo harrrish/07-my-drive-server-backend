@@ -113,12 +113,6 @@ export const getFile = async (req, res) => {
     );
     console.log("=== END DEBUG ===");
 
-    console.log("=== URL DEBUGGING ===");
-    console.log("cloudfrontURL from env:", cloudfrontURL);
-    console.log("Type of cloudfrontURL:", typeof cloudfrontURL);
-    console.log("Generated url:", url);
-    console.log("URL starts with:", url.substring(0, 10));
-
     const { _id: userID } = req.user;
     const fileID = req.params.fileID;
 
@@ -156,6 +150,14 @@ export const getFile = async (req, res) => {
     });
 
     console.log({ cloudFrontUrl });
+
+    console.log("=== URL DEBUGGING ===");
+    console.log("cloudfrontURL from env:", cloudfrontURL);
+    console.log("Type of cloudfrontURL:", typeof cloudfrontURL);
+    console.log("Generated url:", url);
+    console.log("URL starts with:", url.substring(0, 10));
+
+    return res.json({ message: cloudFrontUrl });
 
     return res.redirect(cloudFrontUrl);
   } catch (error) {
