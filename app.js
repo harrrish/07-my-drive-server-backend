@@ -8,14 +8,11 @@ import userRouter from "./routes/userRouter.js";
 import otpRouter from "./routes/otpRouter.js";
 import authenticateUser from "./middlewares/authenticateUser.js";
 import { connectDB } from "./configurations/dbConfig.js";
-import { asyncHandler } from "./utils/asyncHandler.js";
 import googleRouter from "./routes/googleRouter.js";
 import starredRouter from "./routes/starredRouter.js";
 import trashedRouter from "./routes/trashedRouter.js";
 import sharedRouter from "./routes/sharedRouter.js";
-import { spawn } from "child_process";
-import crypto from "crypto";
-import { customErr, customResp } from "./utils/customReturn.js";
+import homeRouter from "./routes/HomeRouter.js";
 
 connectDB();
 const PORT = process.env.PORT || 4000;
@@ -41,52 +38,7 @@ app.use(
 app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(express.json());
 
-//* DEFAULT ENDPOINT
-app.get(
-  "/",
-  asyncHandler(async (req, res) => {
-    return res.status(200).json({
-      success: true,
-      message: "Welcome to UVDS-My Drive!",
-      developedBy: "Harish S",
-      email: "harishs1906@outlook.com",
-      contact: "701941299",
-    });
-  }),
-);
-
-//* GITHUB WEBHOOK: SERVER
-app.post("/server-github-webhook", (req, res) => {
-  const receivedSignature = req.headers["x-hub-signature-256"];
-  if (!receivedSignature) return customErr(res, 401, "Invalid Signature !");
-
-  const calculatedSignature = `sha256=${crypto
-    .createHmac("sha256", process.env.GITHUB_SECRET)
-    .update(JSON.stringify(req.body))
-    .digest("hex")}`;
-
-  if (receivedSignature !== calculatedSignature) {
-    console.log("Signature match failed !");
-    return customErr(res, 403, "Invalid Signature !");
-  } else {
-    customResp(res, 200, "Server-Code Deployment process started !");
-    console.log("Server-Code Deployment process started !");
-
-    const child = spawn("bash", ["/usr/harish/server.sh"]);
-    child.stdout.on("data", (data) => {
-      console.log("[SERVER DEPLOY STDOUT]", data.toString());
-    });
-    child.stderr.on("data", (data) => {
-      console.error("[SERVER DEPLOY STDERR]", data.toString());
-    });
-    child.on("close", (code) => {
-      console.log(`Backend deployment finished with code ${code}`);
-      if (code === 0) console.log("Backend deployment SUCCESS");
-      else console.error("Backend deployment FAILED");
-    });
-  }
-});
-
+app.use("/", homeRouter);
 app.use("/user", userRouter);
 app.use("/file", authenticateUser, filesRouter);
 app.use("/directory", authenticateUser, directoryRouter);
