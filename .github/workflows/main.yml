@@ -26,17 +26,13 @@ jobs:
       # 2. Deploy to remote server
       - name: Deploy backend on EC2
         run: |
-          ssh "${SSH_USER}@${SSH_HOST}" "bash -s" << "EOF"
+          ssh ubuntu@3.110.90.162 "bash -s" << 'EOF'
             set -e
-
-            cd REMOTE_APP_DIR
+            
+            cd /usr/harish/server-my-drive
             git pull
-
-            echo "Installing backend dependencies (npm ci)..."
             npm ci --no-audit --no-fund
-
-            echo "Reloading PM2 app..."
-            pm2 reload "${PM2_APP_NAME}"
-
+            pm2 reload server-uvds
+            
             echo "Backend Deployed Successfully..."
           EOF
