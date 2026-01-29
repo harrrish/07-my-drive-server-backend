@@ -123,7 +123,7 @@ export const getFile = async (req, res) => {
       url = `${cloudfrontURL}/${fileID}${extension}`;
     }
 
-    // console.log(url);
+    console.log({ url });
 
     const cloudFrontUrl = getSignedUrl({
       url,
@@ -132,21 +132,12 @@ export const getFile = async (req, res) => {
       privateKey: process.env.CLOUDFRONT_PRIVATE_KEY.replace(/\\n/g, "\n"),
     });
 
-    // console.log(`${process.env.CLOUDFRONT_URL}/${fileID}${extension}`);
-    // console.log(process.env.CLOUDFRONT_KEY_PAIR_ID);
-    // console.log(process.env.CLOUDFRONT_PRIVATE_KEY);
+    console.log(`${process.env.CLOUDFRONT_URL}/${fileID}${extension}`);
+    console.log(process.env.CLOUDFRONT_KEY_PAIR_ID);
+    console.log(process.env.CLOUDFRONT_PRIVATE_KEY);
 
-    // console.log({ cloudFrontUrl });
+    console.log({ cloudFrontUrl });
 
-    /* //*s3 URL    
-    const fileUrl = await createGetSignedUrl({
-      key: `${fileID}${extension}`,
-      download: req.query.action === "download",
-      filename: name,
-    });
-    console.log({ fileUrl })
-    return res.redirect(fileUrl);
-     */
     return res.redirect(cloudFrontUrl);
   } catch (error) {
     console.error("Failed to fetch file:", error);
