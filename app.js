@@ -20,25 +20,26 @@ const app = express();
 
 const whitelist =
   process.env.NODE_ENV === "production"
-    ? ["https://www.uvds.store", "https://uvds.store"]
+    ? ["https://uvds.store", "https://www.uvds.store"]
     : ["http://localhost:5173"];
-
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin) return callback(null, true); // curl / server calls
+      // Allow server-to-server / curl / health checks
+      if (!origin) return callback(null, true);
 
       if (whitelist.includes(origin)) {
-        callback(null, origin); // 👈 IMPORTANT: echo origin
-      } else {
-        callback(new Error("Not allowed by CORS"));
+        return callback(null, origin);
       }
+      // IMPORTANT: do NOT throw error
+      return callback(null, false);
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
+
 app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(express.json());
 
