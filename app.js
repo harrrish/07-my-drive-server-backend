@@ -13,8 +13,8 @@ import starredRouter from "./routes/starredRouter.js";
 import trashedRouter from "./routes/trashedRouter.js";
 import sharedRouter from "./routes/sharedRouter.js";
 import homeRouter from "./routes/HomeRouter.js";
-
 connectDB();
+
 const PORT = process.env.PORT || 4000;
 const app = express();
 
@@ -22,23 +22,28 @@ const whitelist =
   process.env.NODE_ENV === "production"
     ? ["https://uvds.store", "https://www.uvds.store"]
     : ["http://localhost:5173"];
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // Allow server-to-server / curl / health checks
-      if (!origin) return callback(null, true);
 
-      if (whitelist.includes(origin)) {
-        return callback(null, origin);
-      }
-      // IMPORTANT: do NOT throw error
-      return callback(null, false);
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  }),
-);
+// CORS configuration
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+
+    if (whitelist.includes(origin)) {
+      return callback(null, origin);
+    }
+
+    console.log(`Blocked by CORS: ${origin}`);
+    return callback(null, false);
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  optionsSuccessStatus: 200, // Some legacy browsers choke on 204
+};
+
+// Apply CORS to all routes
+app.use(cors(corsOptions));
 
 app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(express.json());
