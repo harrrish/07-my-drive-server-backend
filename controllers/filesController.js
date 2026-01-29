@@ -96,6 +96,10 @@ export const uploadComplete = async (req, res) => {
 //*===============>  GET FILE CONTENT
 export const getFile = async (req, res) => {
   try {
+    console.log(`${process.env.CLOUDFRONT_URL}/${fileID}${extension}`);
+    console.log(process.env.CLOUDFRONT_KEY_PAIR_ID);
+    console.log(process.env.CLOUDFRONT_PRIVATE_KEY);
+
     const { _id: userID } = req.user;
     const fileID = req.params.fileID;
 
@@ -131,10 +135,6 @@ export const getFile = async (req, res) => {
       dateLessThan: new Date(Date.now() + 1000 * 60), //* 60 seconds
       privateKey: process.env.CLOUDFRONT_PRIVATE_KEY.replace(/\\n/g, "\n"),
     });
-
-    console.log(`${process.env.CLOUDFRONT_URL}/${fileID}${extension}`);
-    console.log(process.env.CLOUDFRONT_KEY_PAIR_ID);
-    console.log(process.env.CLOUDFRONT_PRIVATE_KEY);
 
     console.log({ cloudFrontUrl });
 
