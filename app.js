@@ -12,7 +12,7 @@ import googleRouter from "./routes/googleRouter.js";
 import starredRouter from "./routes/starredRouter.js";
 import trashedRouter from "./routes/trashedRouter.js";
 import sharedRouter from "./routes/sharedRouter.js";
-import homeRouter from "./routes/HomeRouter.js";
+import homeRouter from "./routes/homeRouter.js";
 connectDB();
 
 const PORT = process.env.PORT || 4000;
