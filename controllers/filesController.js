@@ -96,9 +96,28 @@ export const uploadComplete = async (req, res) => {
 //*===============>  GET FILE CONTENT
 export const getFile = async (req, res) => {
   try {
-    console.log(`${process.env.CLOUDFRONT_URL}/${fileID}${extension}`);
-    console.log(process.env.CLOUDFRONT_KEY_PAIR_ID);
-    console.log(process.env.CLOUDFRONT_PRIVATE_KEY);
+    console.log("=== DEBUG ENV VARIABLES ===");
+    console.log("CLOUDFRONT_URL exists:", !!process.env.CLOUDFRONT_URL);
+    console.log("CLOUDFRONT_URL value:", process.env.CLOUDFRONT_URL);
+    console.log(
+      "CLOUDFRONT_KEY_PAIR_ID exists:",
+      !!process.env.CLOUDFRONT_KEY_PAIR_ID,
+    );
+    console.log(
+      "CLOUDFRONT_PRIVATE_KEY exists:",
+      !!process.env.CLOUDFRONT_PRIVATE_KEY,
+    );
+    console.log(
+      "CLOUDFRONT_PRIVATE_KEY length:",
+      process.env.CLOUDFRONT_PRIVATE_KEY?.length,
+    );
+    console.log("=== END DEBUG ===");
+
+    console.log("=== URL DEBUGGING ===");
+    console.log("cloudfrontURL from env:", cloudfrontURL);
+    console.log("Type of cloudfrontURL:", typeof cloudfrontURL);
+    console.log("Generated url:", url);
+    console.log("URL starts with:", url.substring(0, 10));
 
     const { _id: userID } = req.user;
     const fileID = req.params.fileID;
