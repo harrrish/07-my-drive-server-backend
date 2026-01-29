@@ -8,6 +8,7 @@ import { customErr, customResp } from "../utils/customReturn.js";
 export const loginWithGoogle = async (req, res) => {
   try {
     const { idToken } = req.body;
+    console.log({ idToken });
     const userData = await verifyToken(idToken);
     const { name, picture, email, sub } = userData;
     const user = await UserModel.findOne({ email });
