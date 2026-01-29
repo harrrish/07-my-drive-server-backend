@@ -25,14 +25,18 @@ const whitelist =
 
 app.use(
   cors({
-    origin: function (origin, callback) {
-      if (whitelist.indexOf(origin) !== -1 || !origin) {
-        callback(null, true);
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true); // curl / server calls
+
+      if (whitelist.includes(origin)) {
+        callback(null, origin); // 👈 IMPORTANT: echo origin
       } else {
         callback(new Error("Not allowed by CORS"));
       }
     },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
 app.use(cookieParser(process.env.COOKIE_SECRET));
