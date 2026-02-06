@@ -62,7 +62,7 @@ export const loginWithGoogle = async (req, res) => {
         maxAge: 60 * 60 * 1000,
       });
       mongooseSession.commitTransaction();
-      return customResp(res, 201, "User signup complete");
+      return customResp(res, 201, "User signup complete !");
     }
     //* LOGIN
     else {
@@ -88,7 +88,7 @@ export const loginWithGoogle = async (req, res) => {
         signed: true,
         maxAge: 60 * 60 * 1000,
       });
-      return customResp(res, 201, "User login complete");
+      return customResp(res, 201, "User login complete !");
     }
   } catch (error) {
     console.error("Login failed using Google:", error);

@@ -25,16 +25,16 @@ export const createUploadSignedUrl = async ({ key, contentType }) => {
   const command = new PutObjectCommand({
     Bucket: "s3-uvds",
     Key: key,
-    ContentType: contentType,
+    // ContentType: contentType,
   });
 
-  // console.log({ uploadCommand: command });
+  console.log({ uploadCommand: command });
 
   const url = await getSignedUrl(s3Client, command, {
     expiresIn: 300,
-    signableHeaders: new Set(["content-type"]),
+    // signableHeaders: new Set(["content-type"]),
   });
-  // console.log({ uploadUrl: url });
+  console.log({ uploadUrl: url });
 
   return url;
 };
