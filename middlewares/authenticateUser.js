@@ -6,23 +6,26 @@ import UserModel from "../models/UserModel.js";
 export default async function authenticateUser(req, res, next) {
   try {
     const { sessionID } = req.signedCookies;
+
     if (!sessionID) {
       res.clearCookie("sessionID");
-      return customErr(res, 401, "Expired or Invalid Session");
+      return customErr(res, 401, "INVALID_SESSION");
     }
     validateMongoID(res, sessionID);
+
     const redisKey = `session:${sessionID}`;
     const session = await redisClient.json.get(redisKey);
     if (!session) {
       res.clearCookie("sessionID");
-      return customErr(res, 401, "Expired or Invalid Session");
+      return customErr(res, 401, "INVALID_SESSION");
     }
+
     const user = await UserModel.findById({ _id: session.userID });
     if (!user) {
       res.clearCookie("sessionID");
-      return customErr(res, 401, "Expired or Invalid Session");
+      return customErr(res, 401, "INVALID_SESSION");
     }
-    // console.log({ user });
+
     //*===============> id, rootID, name, email, maxStorageInBytes, role, isDeleted
     req.user = user;
     next();

@@ -21,7 +21,7 @@ export const getDirectoryContents = async (req, res, next) => {
     });
 
     if (currentFolder.isTrashed || currentFolder.isDeleted)
-      return customErr(res, 404, "Folder may be deleted or Access denied !");
+      return customErr(res, 404, "FOLDER_NOT_FOUND");
 
     // console.log({ currentFolder });
 

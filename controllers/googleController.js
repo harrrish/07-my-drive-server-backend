@@ -8,10 +8,11 @@ import { customErr, customResp } from "../utils/customReturn.js";
 export const loginWithGoogle = async (req, res) => {
   try {
     const { idToken } = req.body;
-    console.log({ idToken });
+    // console.log({ idToken });
     const userData = await verifyToken(idToken);
     const { name, picture, email, sub } = userData;
     const user = await UserModel.findOne({ email });
+    //* REGISTER
     if (!user) {
       const mongooseSession = await mongoose.startSession();
       mongooseSession.startTransaction();
@@ -43,7 +44,7 @@ export const loginWithGoogle = async (req, res) => {
       await redisClient.json.set(redisSessionKey, "$", {
         userID,
       });
-      await redisClient.expire(redisSessionKey, 60 * 60);
+      await redisClient.expire(redisSessionKey, 60 * 60 * 24);
 
       const redisUserDetails = `user:${userID}`;
       const ab = await redisClient.json.set(redisUserDetails, "$", {
@@ -62,15 +63,16 @@ export const loginWithGoogle = async (req, res) => {
       });
       mongooseSession.commitTransaction();
       return customResp(res, 201, "User signup complete");
-    } else {
+    }
+    //* LOGIN
+    else {
       const sessionID = new Types.ObjectId();
 
       const redisKey = `session:${sessionID}`;
       await redisClient.json.set(redisKey, "$", {
         userID: user._id,
       });
-      await redisClient.expire(redisKey, 60 * 60);
-
+      await redisClient.expire(redisKey, 60 * 60 * 24);
       const redisUserDetails = `user:${user._id}`;
       const ab = await redisClient.json.set(redisUserDetails, "$", {
         name: user.name,

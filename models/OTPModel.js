@@ -14,12 +14,12 @@ const OTPSchema = new Schema(
     createdAt: {
       type: Date,
       default: Date.now(),
-      expires: 180,
+      expires: 120,
     },
   },
   {
     strict: "throw",
-  }
+  },
 );
 
 const OTP = model("OTP", OTPSchema);

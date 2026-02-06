@@ -48,8 +48,12 @@ const userSchema = new Schema(
     },
     role: {
       type: String,
-      enum: ["Basic", "Pro", "Premium"],
+      enum: ["Basic", "Pro", "Premium", "ADMIN"],
       default: "Basic",
+    },
+    roleValidity: {
+      type: Date,
+      default: Date.now() + 1000 * 60 * 60 * 24 * 365 * 10,
     },
     isDeleted: {
       type: Boolean,

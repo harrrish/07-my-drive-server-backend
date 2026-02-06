@@ -26,10 +26,16 @@ const whitelist =
 // CORS configuration
 const corsOptions = {
   origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps, curl, etc.)
-    if (!origin) return callback(null, true);
+    // console.log(`Origin received: ${origin}`);
+    // console.log("NODE_ENV:", `${process.env.NODE_ENV}`);
+
+    if (!origin) {
+      console.log("No origin, allowing request");
+      return callback(null, true);
+    }
 
     if (whitelist.includes(origin)) {
+      // console.log(`Origin ${origin} is in whitelist`);
       return callback(null, origin);
     }
 
@@ -37,9 +43,9 @@ const corsOptions = {
     return callback(null, false);
   },
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
-  optionsSuccessStatus: 200, // Some legacy browsers choke on 204
+  optionsSuccessStatus: 200,
 };
 
 // Apply CORS to all routes

@@ -1,7 +1,7 @@
 import express from "express";
 import authenticateUser from "../middlewares/authenticateUser.js";
 import {
-  getUserDetails,
+  getUserData,
   getUserStorage,
   loginUser,
   logoutUser,
@@ -14,7 +14,7 @@ userRouter.post("/register", registerUser);
 
 userRouter.post("/login", loginUser);
 
-userRouter.get("/profile", authenticateUser, getUserDetails);
+userRouter.get("/profile", authenticateUser, getUserData);
 
 userRouter.get("/storage-details", authenticateUser, getUserStorage);
 

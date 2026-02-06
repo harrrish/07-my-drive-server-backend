@@ -62,13 +62,14 @@ export const uploadComplete = async (req, res) => {
     if (fileID) validateMongoID(res, fileID);
 
     const file = await FileModel.findOne({ _id: fileID, userID });
-    if (!file) return customErr(res, 404, "File Access denied or File deleted");
+    if (!file)
+      return customErr(res, 404, "File Access denied or File deleted !");
 
     const fileHeadData = await getS3FileMetaData(`${file.id}${file.extension}`);
     if (!fileHeadData) {
       await file.deleteOne();
       res.clearCookie("sessionID");
-      return customErr(res, 400, "Corrupt/Deleted file");
+      return customErr(res, 400, "Corrupt/Deleted file !");
     }
     if (fileHeadData.ContentLength !== size) {
       await file.deleteOne();
@@ -85,7 +86,7 @@ export const uploadComplete = async (req, res) => {
     await parentFolder.save();
     editFolderSize(res, parentFolder, size, "inc");
 
-    return customResp(res, 200, `File "${file.name}" upload complete`);
+    return customResp(res, 200, `File upload complete !`);
   } catch (error) {
     console.error("File upload failed:", error);
     const errStr = "Internal Server Error";

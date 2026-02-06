@@ -6,6 +6,7 @@ import { loginSchema, registerSchema } from "../utils/zodAuthSchemas.js";
 import { redisClient } from "../configurations/redisConfig.js";
 import { customErr, customResp } from "../utils/customReturn.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import { serialize } from "v8";
 
 const isProd = process.env.NODE_ENV === "production";
 
@@ -20,7 +21,8 @@ export const registerUser = async (req, res) => {
     if (emailExists) return customErr(res, 400, "User email exists !");
 
     const otpRecord = await OTPModel.findOne({ email, otp });
-    if (!otpRecord) return customErr(res, 400, "Invalid or Expired OTP !");
+    if (!otpRecord)
+      return customErr(res, 400, "Session Expired to create account !");
     await otpRecord.deleteOne();
 
     const session = await mongoose.startSession();
@@ -103,21 +105,33 @@ export const loginUser = async (req, res) => {
   }
 };
 
-export const getUserDetails = async (req, res) => {
-  const redisKey = `user:${req.user.id}`;
-  const redisData = await redisClient.json.get(redisKey);
-  if (redisData) {
-    const { name, email, picture } = redisData;
-    return res.status(200).json({ name, email, picture });
-  } else {
-    try {
-      const { name, email, picture } = req.user;
-      return res.status(200).json({ name, email, picture });
-    } catch (error) {
-      console.error("Fetching user details failed:", error);
-      const errStr = "Internal Server Error";
-      return customErr(res, 500, errStr);
-    }
+export const getUserData = async (req, res) => {
+  try {
+    const redisKey = `user:${req.user.id}`;
+    const redisData = await redisClient.json.get(redisKey);
+    if (!redisData) return customErr(res, 500, "Invalid Session !");
+
+    //* Finding User
+    const { name, email, role, picture, maxStorageInBytes } = req.user;
+
+    //* Finding Root folder
+    const { size } = await DirectoryModel.findOne({
+      userID: req.user.id,
+      name: `root-${email}`,
+    });
+
+    return res.status(200).json({
+      name,
+      email,
+      role,
+      picture,
+      size,
+      maxStorageInBytes,
+    });
+  } catch (error) {
+    console.error("Fetching user details failed:", error);
+    const errStr = "Internal Server Error";
+    return customErr(res, 500, errStr);
   }
 };
 

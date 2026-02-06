@@ -8,7 +8,7 @@ export const requestOTP = async (req, res) => {
   const { success, data, error } = otpRequestSchema.safeParse(req.body);
   // console.log({ success }, { data }, { error });
 
-  if (!success) return customErr(res, 400, "Invalid credentials !");
+  if (!success) return customErr(res, 400, "Provide valid name and email !");
 
   const { email } = data;
   const emailExists = await UserModel.findOne({ email });
@@ -29,6 +29,13 @@ export const verifyOTP = async (req, res) => {
     if (!success) return customErr(res, 400, "Invalid OTP or Credentials !");
 
     const { email, otp } = data;
+
+    console.log(email, otp);
+
+    const otpExpired = await OTP.findOne({ email });
+    console.log({ otpExpired });
+    if (!otpExpired) return customErr(res, 400, "OTP Expired !");
+
     const otpRecord = await OTP.findOne({ email, otp });
     if (!otpRecord) return customErr(res, 400, "Invalid Email or OTP !");
     else return customResp(res, 200, "OTP verification completed !");
