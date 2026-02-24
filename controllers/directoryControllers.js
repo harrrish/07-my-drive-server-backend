@@ -56,6 +56,8 @@ export const getDirectoryContents = async (req, res, next) => {
       filesCount,
       foldersCount,
       path: pathData,
+      roleCode: req.user.roleCode,
+      role: req.user.role,
     });
   } catch (error) {
     console.error("Failed to fetch folder content:", error);

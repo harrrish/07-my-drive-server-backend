@@ -52,7 +52,7 @@ export const loginWithGoogle = async (req, res) => {
         email,
         picture,
       });
-      await redisClient.expire(redisUserDetails, 60 * 60);
+      await redisClient.expire(redisUserDetails, 60 * 60 * 24);
 
       res.cookie("sessionID", sessionID, {
         httpOnly: true,
@@ -79,7 +79,7 @@ export const loginWithGoogle = async (req, res) => {
         email: user.email,
         picture: user.picture,
       });
-      await redisClient.expire(redisUserDetails, 60 * 60);
+      await redisClient.expire(redisUserDetails, 60 * 60 * 24);
 
       res.cookie("sessionID", sessionID, {
         httpOnly: true,

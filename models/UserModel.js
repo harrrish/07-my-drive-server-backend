@@ -51,6 +51,11 @@ const userSchema = new Schema(
       enum: ["Basic", "Pro", "Premium", "ADMIN"],
       default: "Basic",
     },
+    roleCode: {
+      type: Number,
+      default: 1,
+    },
+    planCode: { type: Schema.Types.ObjectId, ref: "Plan" },
     roleValidity: {
       type: Date,
       default: Date.now() + 1000 * 60 * 60 * 24 * 365 * 10,

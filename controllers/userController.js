@@ -2,11 +2,11 @@ import { Types, mongoose } from "mongoose";
 import UserModel from "../models/UserModel.js";
 import DirectoryModel from "../models/DirectoryModel.js";
 import OTPModel from "../models/OTPModel.js";
+import PlanModel from "../models/PlanModel.js";
 import { loginSchema, registerSchema } from "../utils/zodAuthSchemas.js";
 import { redisClient } from "../configurations/redisConfig.js";
 import { customErr, customResp } from "../utils/customReturn.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { serialize } from "v8";
 
 const isProd = process.env.NODE_ENV === "production";
 
@@ -29,13 +29,16 @@ export const registerUser = async (req, res) => {
     session.startTransaction();
     const rootID = new Types.ObjectId();
     const userID = new Types.ObjectId();
-    await UserModel.insertOne(
+    const plan = await PlanModel.findOne({ roleCode: 1, planType: "month" });
+    const createdUser = await UserModel.insertOne(
       {
         _id: userID,
         name,
         email,
         password,
         rootID,
+        roleCode: 1,
+        planCode: plan.id,
       },
       { session },
     );
@@ -49,6 +52,8 @@ export const registerUser = async (req, res) => {
       },
       { session },
     );
+    plan.usersList.push(createdUser.id);
+    await plan.save();
     session.commitTransaction();
     return customResp(res, 201, "User registration complete !");
   } catch (error) {

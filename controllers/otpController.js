@@ -29,11 +29,10 @@ export const verifyOTP = async (req, res) => {
     if (!success) return customErr(res, 400, "Invalid OTP or Credentials !");
 
     const { email, otp } = data;
-
-    console.log(email, otp);
+    // console.log(email, otp);
 
     const otpExpired = await OTP.findOne({ email });
-    console.log({ otpExpired });
+    // console.log({ otpExpired });
     if (!otpExpired) return customErr(res, 400, "OTP Expired !");
 
     const otpRecord = await OTP.findOne({ email, otp });

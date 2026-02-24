@@ -1,0 +1,48 @@
+{
+  "features": [
+    {
+      "feature": "100 MB secure cloud storage",
+      "value": true
+    },
+    {
+      "feature": "Upload files up to 5 MB each",
+      "value": true
+    },
+    {
+      "feature": "Access to Basic AI chatbot assistance",
+      "value": true
+    },
+    {
+      "feature": "Full group collaboration and project access",
+      "value": true
+    },
+    {
+      "feature": "Use on one personal device",
+      "value": true
+    },
+    {
+      "feature": "Public file sharing",
+      "value": true
+    },
+    {
+      "feature": "File starring",
+      "value": true
+    },
+    {
+      "feature": "Group delete functionality",
+      "value": true
+    },
+    {
+      "feature": "Bulk move files and folders",
+      "value": true
+    },
+    {
+      "feature": "File search",
+      "value": true
+    },
+    {
+      "feature": "File sorting",
+      "value": true
+    }
+  ]
+}

@@ -13,6 +13,7 @@ import starredRouter from "./routes/starredRouter.js";
 import trashedRouter from "./routes/trashedRouter.js";
 import sharedRouter from "./routes/sharedRouter.js";
 import homeRouter from "./routes/homeRouter.js";
+import purchaseRouter from "./routes/purchaseRouter.js";
 connectDB();
 
 const PORT = process.env.PORT || 4000;
@@ -30,7 +31,7 @@ const corsOptions = {
     // console.log("NODE_ENV:", `${process.env.NODE_ENV}`);
 
     if (!origin) {
-      console.log("No origin, allowing request");
+      // console.log("No origin, allowing request");
       return callback(null, true);
     }
 
@@ -39,7 +40,7 @@ const corsOptions = {
       return callback(null, true);
     }
 
-    console.log(`Blocked by CORS: ${origin}`);
+    // console.log(`Blocked by CORS: ${origin}`);
     return callback(null, false);
   },
   credentials: true,
@@ -62,9 +63,16 @@ app.use("/directory", authenticateUser, directoryRouter);
 app.use("/star", authenticateUser, starredRouter);
 app.use("/trash", authenticateUser, trashedRouter);
 app.use("/share", authenticateUser, sharedRouter);
+app.use("/purchase-premium", authenticateUser, purchaseRouter);
 app.use("/otp", otpRouter);
 app.use("/google", googleRouter);
 
-app.listen(PORT, () =>
-  console.log(`Express app running on PORT:${process.env.PORT} `),
-);
+// start server only if NOT in production
+if (process.env.NODE_ENV !== "production") {
+  app.listen(PORT, () => {
+    console.log(`Express app running on PORT:${PORT}`);
+  });
+}
+
+// always export app
+export default app;
