@@ -9,19 +9,19 @@ export const checkFileSize = async (req, res, next) => {
     const { name, size, folderID } = req.body;
     if (!name || !size) return customErr(res, 400, "Invalid file details");
 
-    if (role === "Basic") {
+    if (role === "BASIC") {
       if (size > 1024 * 1024) {
         // console.log("File size over 1 MB !");
         customErr(res, 507, "Free user cannot upload file larger than 1 MB !");
         return res.destroy();
       }
-    } else if (role === "Pro") {
+    } else if (role === "PRO") {
       if (size > 1024 * 1024 * 5) {
         // console.log("File size over 5 MB !");
-        customErr(res, 507, "A Pro user cannot upload file larger than 5 MB !");
+        customErr(res, 507, "A PRO user cannot upload file larger than 5 MB !");
         return res.destroy();
       }
-    } else if (role === "Premium") {
+    } else if (role === "PREMIUM") {
       if (size > 1024 * 1024 * 10) {
         // console.log("File size over 10 MB !");
         customErr(res, 507, "Files larger than 10 MB not supported !");

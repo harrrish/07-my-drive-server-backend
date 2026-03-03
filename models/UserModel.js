@@ -48,8 +48,8 @@ const userSchema = new Schema(
     },
     role: {
       type: String,
-      enum: ["Basic", "Pro", "Premium", "ADMIN"],
-      default: "Basic",
+      enum: ["BASIC", "PRO", "PREMIUM", "ADMIN"],
+      default: "BASIC",
     },
     roleCode: {
       type: Number,

@@ -9,7 +9,6 @@ const planSchema = new Schema(
       minLength: [3, "Plan name too short"],
       trim: true,
       unique: true,
-      lowercase: true,
     },
     description: String,
     price: {
@@ -31,6 +30,7 @@ const planSchema = new Schema(
         ref: "User",
       },
     ],
+    razorpayID: { type: String },
     features: {
       type: [
         {

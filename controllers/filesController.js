@@ -56,8 +56,8 @@ export const uploadComplete = async (req, res) => {
     const { _id: userID } = req.user;
     const { fileID, size } = req.body;
     if (!fileID || !size) {
-      res.clearCookie("sessionID");
-      return customErr(res, 400, "Invalid file ID !");
+      /* res.clearCookie("sessionID"); */
+      return customErr(res, 400, "Unable to upload file !");
     }
     if (fileID) validateMongoID(res, fileID);
 
@@ -68,13 +68,13 @@ export const uploadComplete = async (req, res) => {
     const fileHeadData = await getS3FileMetaData(`${file.id}${file.extension}`);
     if (!fileHeadData) {
       await file.deleteOne();
-      res.clearCookie("sessionID");
-      return customErr(res, 400, "Corrupt/Deleted file !");
+      /* res.clearCookie("sessionID"); */
+      return customErr(res, 400, "Unable to upload file !");
     }
     if (fileHeadData.ContentLength !== size) {
       await file.deleteOne();
-      res.clearCookie("sessionID");
-      return customErr(res, 400, "File size altered");
+      /* res.clearCookie("sessionID"); */
+      return customErr(res, 400, "Unable to upload file !");
     }
 
     file.isUploading = false;
@@ -109,8 +109,8 @@ export const getFile = async (req, res) => {
     const fileID = req.params.fileID;
 
     if (!fileID) {
-      res.clearCookie("sessionID");
-      return customErr(res, 401, errorSession);
+      /* res.clearCookie("sessionID"); */
+      return customErr(res, 400, "Unable to fetch file content !");
     }
 
     if (fileID) validateMongoID(res, fileID);
@@ -163,8 +163,8 @@ export const renameFile = async (req, res) => {
     const fileID = req.params.fileID;
 
     if (!fileID) {
-      res.clearCookie("sessionID");
-      return customErr(res, 401, "Invalid file ID !");
+      /* res.clearCookie("sessionID"); */
+      return customErr(res, 400, "Unable to rename file !");
     }
 
     if (fileID) validateMongoID(res, fileID);
@@ -178,14 +178,9 @@ export const renameFile = async (req, res) => {
     );
 
     if (!renamed) {
-      res.clearCookie("sessionID");
-      return customErr(res, 401, "File Deleted or Access Denied");
-    } else
-      return customResp(
-        res,
-        201,
-        `File renamed from "${renamed.name}" to "${newName}"`,
-      );
+      /* res.clearCookie("sessionID"); */
+      return customErr(res, 400, "Unable to rename file !");
+    } else return customResp(res, 201, `File rename successful !`);
   } catch (error) {
     console.error("File rename failed:", error);
     const errStr = "Internal Server Error";
@@ -199,28 +194,28 @@ export const deleteFile = async (req, res) => {
     const { _id: userID } = req.user;
     const fileID = req.params.fileID;
     if (!fileID) {
-      res.clearCookie("sessionID");
-      return customErr(res, 401, "Invalid file ID !");
+      /* res.clearCookie("sessionID"); */
+      return customErr(res, 400, "Unable to delete file !");
     }
     if (fileID) validateMongoID(res, fileID);
 
     const fileData = await FileModel.findOne({ _id: fileID, userID });
     if (!fileData) {
-      res.clearCookie("sessionID");
-      return customErr(res, 401, "File Deleted or Access Denied");
+      /* res.clearCookie("sessionID"); */
+      return customErr(res, 400, "Unable to delete file !");
     }
 
     const { _id, folderID, extension, size } = fileData;
     const resp = await deleteS3File(`${fileData.id}${extension}`);
     if (resp.$metadata.httpStatusCode !== 204) {
-      return customErr(res, 404, "File Deleted or Access Denied");
+      return customErr(res, 404, "Unable to delete file !");
     }
 
     const isFileDeleted = await FileModel.deleteOne({ _id, userID });
 
     if (!isFileDeleted.acknowledged) {
-      res.clearCookie("sessionID");
-      return customErr(res, 401, "File Deleted or Access Denied");
+      /* res.clearCookie("sessionID"); */
+      return customErr(res, 400, "Unable to delete file !");
     } else {
       const parentFolder = await DirectoryModel.findById(folderID);
       editFolderSize(res, parentFolder, size, "dec");

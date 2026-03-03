@@ -112,8 +112,8 @@ export const renameDirectory = async (req, res, next) => {
     const { id: userID } = req.user;
     const folderID = req.params.id;
     if (!folderID) {
-      res.clearCookie("sessionID");
-      return customErr(res, 401, "Invalid folder ID !");
+      /* res.clearCookie("sessionID"); */
+      return customErr(res, 400, "Unable to rename folder !");
     }
     validateMongoID(res, folderID);
 
@@ -127,8 +127,8 @@ export const renameDirectory = async (req, res, next) => {
       { $set: { name: folderName } },
     );
     if (!renamed) {
-      res.clearCookie("sessionID");
-      return customErr(res, 400, "Folder deleted or Access denied");
+      /* res.clearCookie("sessionID"); */
+      return customErr(res, 400, "Unable to rename folder !");
     } else {
       return customResp(
         res,
@@ -148,15 +148,15 @@ export const deleteDirectory = async (req, res, next) => {
   try {
     const folderID = req.params.id;
     if (!folderID) {
-      res.clearCookie("sessionID");
-      return customErr(res, 401, "Invalid folder ID !");
+      /* res.clearCookie("sessionID"); */
+      return customErr(res, 401, "Unable to delete folder !");
     }
     validateMongoID(res, folderID);
 
     const folder = await DirectoryModel.findById(folderID);
     if (!folder) {
-      res.clearCookie("sessionID");
-      return customErr(res, 401, "Folder deleted or Access denied");
+      /* res.clearCookie("sessionID"); */
+      return customErr(res, 401, "Unable to delete folder !");
     }
 
     const { _id, parentFID } = folder;

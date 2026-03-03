@@ -19,6 +19,8 @@
     "mongodb": "^6.16.0",
     "mongoose": "^8.18.2",
     "multer": "^2.0.2",
+    "ngrok": "^5.0.0-beta.2",
+    "razorpay": "^2.9.6",
     "redis": "^5.8.1",
     "resend": "^6.2.0",
     "serverless-http": "^4.0.0",

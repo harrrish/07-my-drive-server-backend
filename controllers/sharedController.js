@@ -9,8 +9,8 @@ export const shareFileLinkController = async (req, res, next) => {
     const { _id: userID } = req.user;
     const fileID = req.params.fileID;
     if (!fileID) {
-      res.clearCookie("sessionID");
-      return customErr(res, 401, errorSession);
+      /* res.clearCookie("sessionID"); */
+      return customErr(res, 400, "Unable to share file !");
     }
     if (fileID) validateMongoID(res, fileID);
     const fileData = await FileModel.findOne({ _id: fileID, userID });
@@ -48,10 +48,9 @@ export const addFileAccessController = async (req, res, next) => {
   });
 
   if (req.user._id.equals(checkUserPresent._id))
-    return customErr(res, 404, "Self share !");
+    return customErr(res, 404, "Current user owns the file !");
 
-  if (!checkUserPresent)
-    return customErr(res, 404, "Email ID could not be found !");
+  if (!checkUserPresent) return customErr(res, 404, "User not be found !");
 
   const { _id } = req.body;
   const file = await FileModel.findOne({
@@ -59,7 +58,7 @@ export const addFileAccessController = async (req, res, next) => {
     userID: req.user.id,
   });
   if (!file) {
-    return customErr(res, 400, "File not found or Access denied !");
+    return customErr(res, 400, "Unable to provide access to file !");
   }
 
   const userFriend = await UserModel.findOne({ email });

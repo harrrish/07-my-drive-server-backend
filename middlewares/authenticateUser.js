@@ -32,6 +32,7 @@ export default async function authenticateUser(req, res, next) {
   } catch (error) {
     console.error("Authentication failed:", error);
     const errStr = "Internal Server Error";
+    res.clearCookie("sessionID");
     return customErr(res, 500, errStr);
   }
 }

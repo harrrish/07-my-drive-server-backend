@@ -2,7 +2,15 @@
   "workbench.colorCustomizations": {
     "activityBar.background": "#551721",
     "titleBar.activeBackground": "#76212F",
-    "titleBar.activeForeground": "#FEFBFB"
+    "titleBar.activeForeground": "#FEFBFB",
+    "titleBar.inactiveBackground": "#551721",
+    "titleBar.inactiveForeground": "#FEFBFB",
+    "statusBar.background": "#551721",
+    "statusBar.foreground": "#FEFBFB",
+    "statusBar.debuggingBackground": "#551721",
+    "statusBar.debuggingForeground": "#FEFBFB",
+    "statusBar.noFolderBackground": "#551721",
+    "statusBar.noFolderForeground": "#FEFBFB"
   },
   "postman.settings.dotenv-detection-notification-visibility": false
 }
