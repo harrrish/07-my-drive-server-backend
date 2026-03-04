@@ -1,12 +1,44 @@
 import mongoose from "mongoose";
 
-export async function connectDB() {
+let cachedConnection = null;
+
+export async function connectDB(context) {
   try {
-    const host = await mongoose.connect(process.env.DB_URL);
-    console.log("Connected to Database:", host.connection.name);
-  } catch (dbConnectionError) {
-    console.log({ dbConnectionError });
-    await mongoose.disconnect(process.env.DB_URL);
-    process.exit(1);
+    if (context) {
+      context.callbackWaitsForEmptyEventLoop = false;
+    }
+
+    // reuse existing connection
+    if (cachedConnection && mongoose.connection.readyState === 1) {
+      return cachedConnection;
+    }
+
+    const db = await mongoose.connect(process.env.DB_URL, {
+      serverSelectionTimeoutMS: 5000,
+      maxPoolSize: 10
+    });
+
+    cachedConnection = db;
+
+    console.log("MongoDB connected:", db.connection.name);
+
+    return db;
+
+  } catch (error) {
+    console.error("MongoDB connection failed:", error);
+    throw error;
   }
 }
+
+/* connection lifecycle logs */
+mongoose.connection.on("connected", () => {
+  console.log("Mongoose connection established");
+});
+
+mongoose.connection.on("error", (err) => {
+  console.error("Mongoose connection error:", err);
+});
+
+mongoose.connection.on("disconnected", () => {
+  console.log("Mongoose disconnected");
+});
