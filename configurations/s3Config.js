@@ -13,30 +13,47 @@ function getMimeType(key) {
   return mime.lookup(key) || "application/octet-stream";
 }
 
-export const s3Client = new S3Client({
-  region: process.env.AWS_REGION || "ap-south-1",
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  },
-});
+let s3Client;
+
+if (process.env.NODE_ENV === "production") {
+  // Lambda / production → use IAM role automatically
+  s3Client = new S3Client({
+    region: process.env.AWS_REGION || "ap-south-1"
+  });
+} else {
+  // Local development → use credentials from .env
+  s3Client = new S3Client({
+    region: process.env.AWS_REGION || "ap-south-1",
+    credentials: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+    }
+  });
+}
 
 export const createUploadSignedUrl = async ({ key, contentType }) => {
-  const command = new PutObjectCommand({
-    Bucket: "s3-uvds",
-    Key: key,
-    // ContentType: contentType,
-  });
+  try {
+    const command = new PutObjectCommand({
+      Bucket: "s3-uvds",
+      Key: key,
+      // ContentType: contentType
+    });
 
-  // console.log({ uploadCommand: command });
+    console.log("Generating presigned URL for key:", key);
+    const url = await getSignedUrl(s3Client, command, {
+      expiresIn: 300
+      // signableHeaders: new Set(["content-type"])
+    });
 
-  const url = await getSignedUrl(s3Client, command, {
-    expiresIn: 300,
-    // signableHeaders: new Set(["content-type"]),
-  });
-  // console.log({ uploadUrl: url });
+    console.log("Generated upload URL:", url);
+    return url;
 
-  return url;
+  } catch (error) {
+    console.error("Failed to generate presigned upload URL");
+    console.error("Error message:", error.message);
+    console.error("Stack:", error.stack);
+    throw new Error("Unable to generate upload URL");
+  }
 };
 
 export const createGetSignedUrl = async ({
@@ -98,3 +115,5 @@ export const deleteS3Files = async (keys) => {
   // console.log({ deleteUrl: url });
   return url;
 };
+
+export { s3Client };
