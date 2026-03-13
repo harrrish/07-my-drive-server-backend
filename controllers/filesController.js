@@ -55,45 +55,68 @@ export const uploadComplete = async (req, res) => {
   try {
     const { _id: userID } = req.user;
     const { fileID, size } = req.body;
+
     if (!fileID || !size) {
-      /* res.clearCookie("sessionID"); */
       return customErr(res, 400, "Unable to upload file !");
     }
-    if (fileID) validateMongoID(res, fileID);
+
+    validateMongoID(res, fileID);
 
     const file = await FileModel.findOne({ _id: fileID, userID });
-    if (!file)
+    if (!file) {
       return customErr(res, 404, "File Access denied or File deleted !");
+    }
 
-    const fileHeadData = await getS3FileMetaData(`${file.id}${file.extension}`);
+    const key = `${file.id}${file.extension}`;
+
+    // Fetch metadata from S3
+    let fileHeadData = await getS3FileMetaData(key);
+
+    // Retry once because S3 may not immediately expose metadata
     if (!fileHeadData) {
-      await file.deleteOne();
-      /* res.clearCookie("sessionID"); */
-      return customErr(res, 400, "Unable to upload file !");
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      fileHeadData = await getS3FileMetaData(key);
     }
-    if (fileHeadData.ContentLength !== size) {
+
+    if (!fileHeadData) {
+      console.log("S3 metadata not found for:", key);
       await file.deleteOne();
-      /* res.clearCookie("sessionID"); */
       return customErr(res, 400, "Unable to upload file !");
     }
 
+    const fileSize = Number(size);
+
+    console.log("S3 size:", fileHeadData.ContentLength);
+    console.log("Client size:", fileSize);
+
+    if (fileHeadData.ContentLength !== fileSize) {
+      console.log("File size mismatch");
+      await file.deleteOne();
+      return customErr(res, 400, "Unable to upload file !");
+    }
+
+    // Mark upload complete
     file.isUploading = false;
+    file.size = fileSize;
     await file.save();
 
     const parentFolder = await DirectoryModel.findById(file.folderID);
 
+    if (!parentFolder) {
+      return customErr(res, 404, "Parent folder not found !");
+    }
+
     parentFolder.filesCount += 1;
     await parentFolder.save();
-    editFolderSize(res, parentFolder, size, "inc");
 
-    return customResp(res, 200, `File upload complete !`);
+    editFolderSize(res, parentFolder, fileSize, "inc");
+
+    return customResp(res, 200, "File upload complete !");
   } catch (error) {
     console.error("File upload failed:", error);
-    const errStr = "Internal Server Error";
-    return customErr(res, 500, errStr);
+    return customErr(res, 500, "Internal Server Error");
   }
 };
-
 //*===============>  GET FILE CONTENT
 export const getFile = async (req, res) => {
   try {
