@@ -76,33 +76,59 @@ export const loginUser = async (req, res) => {
     const isPasswordValid = await user.comparePassword(password);
     if (!isPasswordValid) return customErr(res, 400, "Invalid Credentials !");
 
-    const sessionID = new Types.ObjectId();
-    const redisSessionKey = `session:${sessionID}`;
-    await redisClient.json.set(redisSessionKey, "$", {
-      userID: user._id,
-    });
-    await redisClient.expire(redisSessionKey, 60 * 60 * 24);
+    //* CHECKING EXISTING SESSION IN REDIS
+    const sessionExists = await redisClient.ft.search(
+      "userIDIndex",
+      `@userID:{${user._id.toString()}}`,
+    );
 
-    const redisUserDetails = `user:${user.id}`;
-    await redisClient.json.set(redisUserDetails, "$", {
-      name: user.name,
-      email: user.email,
-      picture: user.picture,
-    });
-    await redisClient.expire(redisUserDetails, 60 * 60 * 24);
+    if (user.roleCode === 1 && sessionExists.total > 0) {
+      console.log(sessionExists.total);
+      return customErr(res, 400, "User login limit exceeded !");
+    } else if (user.roleCode === 2 && sessionExists.total > 1) {
+      console.log(sessionExists.total);
+      return customErr(res, 400, "User login limit exceeded !");
+    } else if (user.roleCode === 3 && sessionExists.total > 2) {
+      console.log(sessionExists.total);
+      return customErr(res, 400, "User login limit exceeded !");
+    } else {
+      const sessionID = new Types.ObjectId();
+      //* CREATING SESSION IN REDIS
+      const redisSessionKey = `session:${sessionID}`;
+      await redisClient.json.set(redisSessionKey, "$", {
+        userID: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        roleCode: user.roleCode,
+        picture: user.picture,
+      });
+      await redisClient.expire(redisSessionKey, 60 * 60 * 24);
 
-    // console.log({ isProd });
+      console.log(sessionExists);
 
-    res.cookie("sessionID", sessionID.toString(), {
-      httpOnly: true,
-      sameSite: isProd ? "None" : "Lax",
-      secure: isProd,
-      signed: true,
-      domain: isProd ? ".uvds.store" : undefined,
-      maxAge: 60 * 60 * 1000,
-    });
+      //* CREATING USER DETAILS IN REDIS
+      // const redisUserDetails = `user:${user.id}`;
+      // await redisClient.json.set(redisUserDetails, "$", {
+      //   name: user.name,
+      //   email: user.email,
+      //   picture: user.picture,
+      // });
+      // await redisClient.expire(redisUserDetails, 60 * 60 * 24);
 
-    return customResp(res, 200, "User login successful !");
+      // console.log({ isProd });
+
+      res.cookie("sessionID", sessionID.toString(), {
+        httpOnly: true,
+        sameSite: isProd ? "None" : "Lax",
+        secure: isProd,
+        signed: true,
+        domain: isProd ? ".uvds.store" : undefined,
+        maxAge: 60 * 60 * 1000,
+      });
+
+      return customResp(res, 200, "User login successful !");
+    }
   } catch (error) {
     console.error("User login failed:", error);
     const errStr = "Internal Server Error";
@@ -112,9 +138,10 @@ export const loginUser = async (req, res) => {
 
 export const getUserData = async (req, res) => {
   try {
-    const redisKey = `user:${req.user.id}`;
-    const redisData = await redisClient.json.get(redisKey);
-    if (!redisData) return customErr(res, 500, "Invalid Session !");
+    // console.log(req.user);
+    // const redisKey = `user:${req.user.id}`;
+    // const redisData = await redisClient.json.get(redisKey);
+    // if (!redisData) return customErr(res, 500, "Invalid Session !");
 
     //* Finding User
     const { name, email, role, picture, maxStorageInBytes } = req.user;

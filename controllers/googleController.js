@@ -18,7 +18,7 @@ export const loginWithGoogle = async (req, res) => {
       mongooseSession.startTransaction();
       const rootID = new Types.ObjectId();
       const userID = new Types.ObjectId();
-      await UserModel.insertOne(
+      const user = await UserModel.insertOne(
         {
           _id: userID,
           name,
@@ -39,20 +39,28 @@ export const loginWithGoogle = async (req, res) => {
         },
         { mongooseSession },
       );
+
       const sessionID = new Types.ObjectId();
+      //* CREATING SESSION IN REDIS
       const redisSessionKey = `session:${sessionID}`;
       await redisClient.json.set(redisSessionKey, "$", {
         userID,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        roleCode: user.roleCode,
+        picture: user.picture,
       });
       await redisClient.expire(redisSessionKey, 60 * 60 * 24);
 
-      const redisUserDetails = `user:${userID}`;
-      const ab = await redisClient.json.set(redisUserDetails, "$", {
-        name,
-        email,
-        picture,
-      });
-      await redisClient.expire(redisUserDetails, 60 * 60 * 24);
+      //* CREATING USER DETAILS IN REDIS
+      // const redisUserDetails = `user:${userID}`;
+      // await redisClient.json.set(redisUserDetails, "$", {
+      //   name,
+      //   email,
+      //   picture,
+      // });
+      // await redisClient.expire(redisUserDetails, 60 * 60 * 24);
 
       res.cookie("sessionID", sessionID, {
         httpOnly: true,
@@ -67,19 +75,26 @@ export const loginWithGoogle = async (req, res) => {
     //* LOGIN
     else {
       const sessionID = new Types.ObjectId();
-
+      //* CREATING SESSION IN REDIS
       const redisKey = `session:${sessionID}`;
       await redisClient.json.set(redisKey, "$", {
         userID: user._id,
-      });
-      await redisClient.expire(redisKey, 60 * 60 * 24);
-      const redisUserDetails = `user:${user._id}`;
-      const ab = await redisClient.json.set(redisUserDetails, "$", {
         name: user.name,
         email: user.email,
+        role: user.role,
+        roleCode: user.roleCode,
         picture: user.picture,
       });
-      await redisClient.expire(redisUserDetails, 60 * 60 * 24);
+      await redisClient.expire(redisKey, 60 * 60 * 24);
+
+      //* CREATING USER DETAILS IN REDIS
+      // const redisUserDetails = `user:${user._id}`;
+      // await redisClient.json.set(redisUserDetails, "$", {
+      //   name: user.name,
+      //   email: user.email,
+      //   picture: user.picture,
+      // });
+      // await redisClient.expire(redisUserDetails, 60 * 60 * 24);
 
       res.cookie("sessionID", sessionID, {
         httpOnly: true,
