@@ -16,7 +16,7 @@ export const addNewPlan = async (req, res, next) => {
     if (plan) return customResp(res, 200, "Plan created successfully !");
   } catch (error) {
     console.error("Failed to add new plan:", error);
-    const errStr = "Internal Server Error";
+    const errStr = "INTERNAL_SERVER_ERROR";
     return customErr(res, 500, errStr);
   }
 };
@@ -71,7 +71,7 @@ export const upgradePlan = async (req, res, next) => {
     return res.status(201).json({ subscriptionID: newSubscription.id });
   } catch (error) {
     console.error("Failed to add new plan:", error);
-    const errStr = "Internal Server Error";
+    const errStr = "INTERNAL_SERVER_ERROR";
     return customErr(res, 500, errStr);
   }
 };
@@ -111,7 +111,7 @@ export const upgradePlanWO = async (req, res, next) => {
     return res.status(201).json({ message: `Upgraded to ${planName} !` });
   } catch (error) {
     console.error("Failed to add new plan:", error);
-    const errStr = "Internal Server Error";
+    const errStr = "INTERNAL_SERVER_ERROR";
     return customErr(res, 500, errStr);
   }
 };

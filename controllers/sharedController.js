@@ -15,8 +15,7 @@ export const shareFileLinkController = async (req, res, next) => {
     if (fileID) validateMongoID(res, fileID);
     const fileData = await FileModel.findOne({ _id: fileID, userID });
     // console.log(fileData);
-    if (!fileData)
-      return customErr(res, 400, "File deleted or File access denied");
+    if (!fileData) return customErr(res, 400, "File not found !");
     const { name, extension } = fileData;
     // console.log(name);
 
@@ -35,7 +34,7 @@ export const shareFileLinkController = async (req, res, next) => {
     return customResp(res, 200, cloudFrontUrl);
   } catch (error) {
     console.error("Failed to fetch file:", error);
-    const errStr = "Internal Server Error";
+    const errStr = "INTERNAL_SERVER_ERROR";
     return customErr(res, 500, errStr);
   }
 };
@@ -84,14 +83,12 @@ export const refuseFileAccessController = async (req, res, next) => {
     _id: fileID,
     userID: ownerID,
   });
-  if (!fileExists)
-    return customErr(res, 400, "File not found or Access denied !");
+  if (!fileExists) return customErr(res, 400, "File not found !");
   const indexInFile = fileExists.sharedTo.findIndex((f) =>
     f.userID.equals(currentUserID),
   );
   //   console.log(indexInFile);
-  if (indexInFile === -1)
-    return customErr(res, 400, "File not found or Access denied !");
+  if (indexInFile === -1) return customErr(res, 400, "File not found !");
 
   //* ACCESS REMOVED IN FILE
   const userReceived = await UserModel.findById(currentUserID);
@@ -99,8 +96,7 @@ export const refuseFileAccessController = async (req, res, next) => {
     v.equals(fileID),
   );
 
-  if (indexInUser === -1)
-    return customErr(res, 400, "File not found or Access denied !");
+  if (indexInUser === -1) return customErr(res, 400, "File not found !");
   fileExists.sharedTo.splice(indexInFile, 1);
   await fileExists.save();
 
@@ -119,7 +115,7 @@ export const filesSharedByUser = async (req, res, next) => {
     return res.status(200).json({ files, filesCount: files.length });
   } catch (error) {
     console.error("Failed to fetch file:", error);
-    const errStr = "Internal Server Error";
+    const errStr = "INTERNAL_SERVER_ERROR";
     return customErr(res, 500, errStr);
   }
 };
@@ -146,7 +142,7 @@ export const filesSharedWithUser = async (req, res, next) => {
     return res.status(200).json({ files, filesCount: files.length });
   } catch (error) {
     console.error("Failed to fetch file:", error);
-    const errStr = "Internal Server Error";
+    const errStr = "INTERNAL_SERVER_ERROR";
     return customErr(res, 500, errStr);
   }
 };

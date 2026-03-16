@@ -4,6 +4,7 @@ import DirectoryModel from "../models/DirectoryModel.js";
 import { verifyToken } from "../configurations/googleConfig.js";
 import { redisClient } from "../configurations/redisConfig.js";
 import { customErr, customResp } from "../utils/customReturn.js";
+import bcrypt from "bcrypt";
 
 export const loginWithGoogle = async (req, res) => {
   try {
@@ -12,7 +13,7 @@ export const loginWithGoogle = async (req, res) => {
     const userData = await verifyToken(idToken);
     const { name, picture, email, sub } = userData;
     const user = await UserModel.findOne({ email });
-    //* REGISTER
+    //* REGISTER USER
     if (!user) {
       const mongooseSession = await mongoose.startSession();
       mongooseSession.startTransaction();
@@ -53,15 +54,6 @@ export const loginWithGoogle = async (req, res) => {
       });
       await redisClient.expire(redisSessionKey, 60 * 60 * 24);
 
-      //* CREATING USER DETAILS IN REDIS
-      // const redisUserDetails = `user:${userID}`;
-      // await redisClient.json.set(redisUserDetails, "$", {
-      //   name,
-      //   email,
-      //   picture,
-      // });
-      // await redisClient.expire(redisUserDetails, 60 * 60 * 24);
-
       res.cookie("sessionID", sessionID, {
         httpOnly: true,
         sameSite: "none",
@@ -70,44 +62,74 @@ export const loginWithGoogle = async (req, res) => {
         maxAge: 60 * 60 * 1000,
       });
       mongooseSession.commitTransaction();
-      return customResp(res, 201, "User signup complete !");
-    }
-    //* LOGIN
-    else {
-      const sessionID = new Types.ObjectId();
-      //* CREATING SESSION IN REDIS
-      const redisKey = `session:${sessionID}`;
-      await redisClient.json.set(redisKey, "$", {
-        userID: user._id,
-        name: user.name,
+      return res.status(201).json({
+        message: "GOOGLE",
+        password: user.password ? true : false,
         email: user.email,
-        role: user.role,
-        roleCode: user.roleCode,
-        picture: user.picture,
       });
-      await redisClient.expire(redisKey, 60 * 60 * 24);
+    }
+    //* LOGIN USER
+    else {
+      //* CHECKING EXISTING SESSION IN REDIS
+      const sessionExists = await redisClient.ft.search(
+        "userIDIndex",
+        `@userID:{${user._id.toString()}}`,
+      );
+      if (
+        (user.roleCode === 1 && sessionExists.total > 0) ||
+        (user.roleCode === 2 && sessionExists.total > 1) ||
+        (user.roleCode === 3 && sessionExists.total > 2)
+      ) {
+        // console.log(sessionExists.total);
+        return res.status(400).json({ error: "LOGIN_LIMIT_EXCEEDED", email });
+      } else {
+        const sessionID = new Types.ObjectId();
+        //* CREATING SESSION IN REDIS
+        const redisSessionKey = `session:${sessionID}`;
+        await redisClient.json.set(redisSessionKey, "$", {
+          userID: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          roleCode: user.roleCode,
+          picture: user.picture,
+        });
+        await redisClient.expire(redisSessionKey, 60 * 60 * 24);
 
-      //* CREATING USER DETAILS IN REDIS
-      // const redisUserDetails = `user:${user._id}`;
-      // await redisClient.json.set(redisUserDetails, "$", {
-      //   name: user.name,
-      //   email: user.email,
-      //   picture: user.picture,
-      // });
-      // await redisClient.expire(redisUserDetails, 60 * 60 * 24);
-
-      res.cookie("sessionID", sessionID, {
-        httpOnly: true,
-        sameSite: "none",
-        secure: true,
-        signed: true,
-        maxAge: 60 * 60 * 1000,
-      });
-      return customResp(res, 201, "User login complete !");
+        res.cookie("sessionID", sessionID, {
+          httpOnly: true,
+          sameSite: "none",
+          secure: true,
+          signed: true,
+          maxAge: 60 * 60 * 1000,
+        });
+        return res.status(201).json({
+          message: "GOOGLE",
+          password: user.password ? true : false,
+          email: user.email,
+        });
+      }
     }
   } catch (error) {
     console.error("Login failed using Google:", error);
-    const errStr = "Internal Server Error";
-    return customErr(res, 500, errStr);
+    return customErr(res, 500, "INTERNAL_SERVER_ERROR");
+  }
+};
+
+export const addGooglePassword = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    // console.log({ email, password });
+
+    const user = await UserModel.findOne({ email });
+    if (!user) return customErr(res, 400, "INVALID_USER");
+
+    user.password = password;
+    await user.save();
+
+    return customResp(res, 201, "PASSWORD_ADDED");
+  } catch (error) {
+    console.error("Login failed using Google:", error);
+    return customErr(res, 500, "INTERNAL_SERVER_ERROR");
   }
 };

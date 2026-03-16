@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+
 import directoryRouter from "./routes/directoryRouter.js";
 import filesRouter from "./routes/filesRouter.js";
 import userRouter from "./routes/userRouter.js";
@@ -16,6 +17,7 @@ import homeRouter from "./routes/homeRouter.js";
 import purchaseRouter from "./routes/purchaseRouter.js";
 import webhookRouter from "./routes/webhookRouter.js";
 import downgradeRouter from "./routes/downgradeRouter.js";
+
 connectDB();
 
 const PORT = process.env.PORT || 4000;

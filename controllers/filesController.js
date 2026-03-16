@@ -45,7 +45,7 @@ export const uploadFileInitiate = async (req, res) => {
     return res.status(200).json({ uploadSignedUrl, fileID: insertedFile.id });
   } catch (error) {
     console.error("Failed to start file upload:", error);
-    const errStr = "Internal Server Error";
+    const errStr = "INTERNAL_SERVER_ERROR";
     return customErr(res, 500, errStr);
   }
 };
@@ -64,7 +64,7 @@ export const uploadComplete = async (req, res) => {
 
     const file = await FileModel.findOne({ _id: fileID, userID });
     if (!file) {
-      return customErr(res, 404, "File Access denied or File deleted !");
+      return customErr(res, 404, "File not found !");
     }
 
     const key = `${file.id}${file.extension}`;
@@ -85,9 +85,8 @@ export const uploadComplete = async (req, res) => {
     }
 
     const fileSize = Number(size);
-
-    console.log("S3 size:", fileHeadData.ContentLength);
-    console.log("Client size:", fileSize);
+    // console.log("S3 size:", fileHeadData.ContentLength);
+    // console.log("Client size:", fileSize);
 
     if (fileHeadData.ContentLength !== fileSize) {
       console.log("File size mismatch");
@@ -114,7 +113,7 @@ export const uploadComplete = async (req, res) => {
     return customResp(res, 200, "File upload complete !");
   } catch (error) {
     console.error("File upload failed:", error);
-    return customErr(res, 500, "Internal Server Error");
+    return customErr(res, 500, "INTERNAL_SERVER_ERROR");
   }
 };
 //*===============>  GET FILE CONTENT
@@ -139,8 +138,7 @@ export const getFile = async (req, res) => {
     if (fileID) validateMongoID(res, fileID);
 
     const fileData = await FileModel.findOne({ _id: fileID, userID });
-    if (!fileData)
-      return customErr(res, 400, "File deleted or File access denied");
+    if (!fileData) return customErr(res, 400, "File not found !");
 
     const { name, extension } = fileData;
     console.log(name);
@@ -174,7 +172,7 @@ export const getFile = async (req, res) => {
     return res.redirect(cloudFrontUrl);
   } catch (error) {
     console.error("Failed to fetch file:", error);
-    const errStr = "Internal Server Error";
+    const errStr = "INTERNAL_SERVER_ERROR";
     return customErr(res, 500, errStr);
   }
 };
@@ -206,7 +204,7 @@ export const renameFile = async (req, res) => {
     } else return customResp(res, 201, `File rename successful !`);
   } catch (error) {
     console.error("File rename failed:", error);
-    const errStr = "Internal Server Error";
+    const errStr = "INTERNAL_SERVER_ERROR";
     return customErr(res, 500, errStr);
   }
 };
@@ -246,7 +244,7 @@ export const deleteFile = async (req, res) => {
     }
   } catch (error) {
     console.error("File deletion failed:", error);
-    const errStr = "Internal Server Error";
+    const errStr = "INTERNAL_SERVER_ERROR";
     return customErr(res, 500, errStr);
   }
 };

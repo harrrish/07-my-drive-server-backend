@@ -26,7 +26,7 @@ export const getTrashedContents = async (req, res, next) => {
     });
   } catch (error) {
     console.error(error);
-    const errStr = "Internal Server Error";
+    const errStr = "INTERNAL_SERVER_ERROR";
     return customErr(res, 500, errStr);
   }
 };
@@ -45,8 +45,7 @@ export const moveFolderToTrash = async (req, res, next) => {
       isDeleted: false,
     });
 
-    if (!folder)
-      return customErr(res, 400, "Folder deleted or Access denied !");
+    if (!folder) return customErr(res, 400, "Folder not found !");
 
     folder.isTrashed = true;
     folder.isDeleted = true;
@@ -71,7 +70,7 @@ export const moveFolderToTrash = async (req, res, next) => {
     return customResp(res, 201, `Folder "${folder.name}" moved to trash !`);
   } catch (error) {
     console.error(error);
-    const errStr = "Internal Server Error";
+    const errStr = "INTERNAL_SERVER_ERROR";
     return customErr(res, 500, errStr);
   }
 };
@@ -120,7 +119,7 @@ export const removeFolderFromTrash = async (req, res, next) => {
     return customResp(res, 201, `Folder "${folder.name}" removed to trash !`);
   } catch (error) {
     console.error(error);
-    const errStr = "Internal Server Error";
+    const errStr = "INTERNAL_SERVER_ERROR";
     return customErr(res, 500, errStr);
   }
 };
@@ -139,7 +138,7 @@ export const moveFileToTrash = async (req, res, next) => {
       isDeleted: false,
     });
 
-    if (!file) return customErr(res, 400, "File deleted or Access denied !");
+    if (!file) return customErr(res, 400, "File not found !");
 
     file.isStarred = false;
     file.isTrashed = true;
@@ -154,7 +153,7 @@ export const moveFileToTrash = async (req, res, next) => {
     return customResp(res, 201, `File "${file.name}" moved to trash !`);
   } catch (error) {
     console.error(error);
-    const errStr = "Internal Server Error";
+    const errStr = "INTERNAL_SERVER_ERROR";
     return customErr(res, 500, errStr);
   }
 };
@@ -173,7 +172,7 @@ export const removeFileFromTrash = async (req, res, next) => {
       isDeleted: true,
     });
 
-    if (!file) return customErr(res, 400, "File deleted or Access denied !");
+    if (!file) return customErr(res, 400, "File not found !");
 
     const fileParentNotTrashed = await DirectoryModel.findById({
       _id: file.folderID,
@@ -197,7 +196,7 @@ export const removeFileFromTrash = async (req, res, next) => {
     return customResp(res, 201, `File "${file.name}" removed to trash !`);
   } catch (error) {
     console.error(error);
-    const errStr = "Internal Server Error";
+    const errStr = "INTERNAL_SERVER_ERROR";
     return customErr(res, 500, errStr);
   }
 };

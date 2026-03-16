@@ -16,7 +16,7 @@ export const editFolderSize = async (res, parentFolder, size, type) => {
       });
       parentFolder = newParentFolder;
     } catch (error) {
-      const errStr = "Internal Server Error";
+      const errStr = "INTERNAL_SERVER_ERROR";
       return customErr(res, 500, errStr);
     }
   }

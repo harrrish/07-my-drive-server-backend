@@ -30,7 +30,7 @@ export const getStarredContents = async (req, res, next) => {
     });
   } catch (error) {
     console.error(error);
-    const errStr = "Internal Server Error";
+    const errStr = "INTERNAL_SERVER_ERROR";
     return customErr(res, 500, errStr);
   }
 };
@@ -50,7 +50,7 @@ export const addStarToFolder = async (req, res, next) => {
     });
 
     if (!folder) {
-      const errStr = "Internal Server Error";
+      const errStr = "INTERNAL_SERVER_ERROR";
       return customErr(res, 400, errStr);
     }
 
@@ -63,7 +63,7 @@ export const addStarToFolder = async (req, res, next) => {
       .json({ message: `Folder "${folder.name}" add to favorites !` });
   } catch (error) {
     console.error(error);
-    const errStr = "Internal Server Error";
+    const errStr = "INTERNAL_SERVER_ERROR";
     return customErr(res, 500, errStr);
   }
 };
@@ -83,7 +83,7 @@ export const removeStarFromFolder = async (req, res, next) => {
     });
 
     if (!folder) {
-      const errStr = "Internal Server Error";
+      const errStr = "INTERNAL_SERVER_ERROR";
       return customErr(res, 400, errStr);
     }
 
@@ -96,7 +96,7 @@ export const removeStarFromFolder = async (req, res, next) => {
       .json({ message: `Folder "${folder.name}" removed from favorites !` });
   } catch (error) {
     console.error(error);
-    const errStr = "Internal Server Error";
+    const errStr = "INTERNAL_SERVER_ERROR";
     return customErr(res, 500, errStr);
   }
 };
@@ -116,7 +116,7 @@ export const addStarToFile = async (req, res, next) => {
     });
 
     if (!file) {
-      const errStr = "Internal Server Error";
+      const errStr = "INTERNAL_SERVER_ERROR";
       return customErr(res, 400, errStr);
     }
 
@@ -129,7 +129,7 @@ export const addStarToFile = async (req, res, next) => {
       .json({ message: `File "${file.name}" add to favorites !` });
   } catch (error) {
     console.error(error);
-    const errStr = "Internal Server Error";
+    const errStr = "INTERNAL_SERVER_ERROR";
     return customErr(res, 500, errStr);
   }
 };
@@ -149,7 +149,7 @@ export const removeStarFromFile = async (req, res, next) => {
     });
 
     if (!file) {
-      const errStr = "Internal Server Error";
+      const errStr = "INTERNAL_SERVER_ERROR";
       return customErr(res, 400, errStr);
     }
 
@@ -162,7 +162,7 @@ export const removeStarFromFile = async (req, res, next) => {
       .json({ message: `File "${file.name}" removed from favorites !` });
   } catch (error) {
     console.error(error);
-    const errStr = "Internal Server Error";
+    const errStr = "INTERNAL_SERVER_ERROR";
     return customErr(res, 500, errStr);
   }
 };

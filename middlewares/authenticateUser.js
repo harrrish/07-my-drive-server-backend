@@ -16,7 +16,11 @@ export default async function authenticateUser(req, res, next) {
     const redisKey = `session:${sessionID}`;
     const session = await redisClient.json.get(redisKey);
     if (!session) {
-      res.clearCookie("sessionID");
+      console.log("AUTH_FAIL_NO_COOKIE", {
+        time: new Date(),
+        ip: req.ip,
+        userAgent: req.headers["user-agent"],
+      });
       return customErr(res, 401, "INVALID_SESSION");
     }
 
@@ -31,7 +35,7 @@ export default async function authenticateUser(req, res, next) {
     next();
   } catch (error) {
     console.error("Authentication failed:", error);
-    const errStr = "Internal Server Error";
+    const errStr = "INTERNAL_SERVER_ERROR";
     res.clearCookie("sessionID");
     return customErr(res, 500, errStr);
   }

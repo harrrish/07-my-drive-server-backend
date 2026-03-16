@@ -61,6 +61,6 @@ export const verifyUpdate = async (req, res) => {
     return res.status(200).json({ message: "pending" });
   } catch (error) {
     console.log(error);
-    return customErr(res, 500, "Internal server error !");
+    return customErr(res, 500, "INTERNAL_SERVER_ERROR !");
   }
 };

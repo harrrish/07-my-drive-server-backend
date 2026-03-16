@@ -20,6 +20,8 @@ export const getDirectoryContents = async (req, res, next) => {
       userID,
     });
 
+    if (!currentFolder) return customErr(res, 404, "FOLDER_NOT_FOUND");
+
     if (currentFolder.isTrashed || currentFolder.isDeleted)
       return customErr(res, 404, "FOLDER_NOT_FOUND");
 
@@ -61,7 +63,66 @@ export const getDirectoryContents = async (req, res, next) => {
     });
   } catch (error) {
     console.error("Failed to fetch folder content:", error);
-    const errStr = "Internal Server Error";
+    const errStr = "INTERNAL_SERVER_ERROR";
+    return customErr(res, 500, errStr);
+  }
+};
+
+//*===============>  FETCHING FOLDERS & FILES
+export const searchDirectoryContents = async (req, res, next) => {
+  try {
+    const { id: userID, rootID } = req.user;
+    const folderID = req.params.id;
+    let currentDirID = folderID ? folderID : rootID;
+    if (currentDirID !== folderID) validateMongoID(res, currentDirID);
+
+    const currentFolder = await DirectoryModel.findOne({
+      _id: currentDirID,
+      userID,
+    });
+
+    if (currentFolder.isTrashed || currentFolder.isDeleted)
+      return customErr(res, 404, "FOLDER_NOT_FOUND");
+
+    // console.log({ currentFolder });
+
+    const folders = await DirectoryModel.find({
+      userID,
+      parentFID: currentDirID,
+      isTrashed: false,
+      isDeleted: false,
+    });
+
+    const files = await FileModel.find({
+      folderID: currentDirID,
+      userID,
+      isUploading: false,
+      isTrashed: false,
+      isDeleted: false,
+    });
+
+    const { filesCount, foldersCount, path } = currentFolder;
+    let pathData;
+    if (path.length > 0) {
+      pathData = await Promise.all(
+        path.map(async (dirId) => {
+          const dir = await DirectoryModel.findById(dirId).select("name");
+          return dir ? { id: dir.id, name: dir.name } : null;
+        }),
+      );
+    }
+    return res.status(200).json({
+      folders,
+      files,
+      filesCount,
+      foldersCount,
+      path: pathData,
+      roleCode: req.user.roleCode,
+      role: req.user.role,
+    });
+  } catch (error) {
+    console.error("Failed to fetch folder content:", error);
+    const errStr = "INTERNAL_SERVER_ERROR";
     return customErr(res, 500, errStr);
   }
 };
@@ -101,7 +162,7 @@ export const createDirectory = async (req, res, next) => {
     return customResp(res, 201, `Folder "${folderName}" created`);
   } catch (error) {
     console.error("Folder creation failed:", error);
-    const errStr = "Internal Server Error";
+    const errStr = "INTERNAL_SERVER_ERROR";
     return customErr(res, 500, errStr);
   }
 };
@@ -138,7 +199,7 @@ export const renameDirectory = async (req, res, next) => {
     }
   } catch (error) {
     console.error("Folder rename failed:", error);
-    const errStr = "Internal Server Error";
+    const errStr = "INTERNAL_SERVER_ERROR";
     return customErr(res, 500, errStr);
   }
 };
@@ -183,7 +244,7 @@ export const deleteDirectory = async (req, res, next) => {
     return customResp(res, 201, `Folder "${folder.name}" deleted`);
   } catch (error) {
     console.error("Folder deletion failed:", error);
-    const errStr = "Internal Server Error";
+    const errStr = "INTERNAL_SERVER_ERROR";
     return customErr(res, 500, errStr);
   }
 };
