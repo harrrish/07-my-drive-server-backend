@@ -71,8 +71,8 @@ app.use("/v1/otp", otpRouter);
 app.use("/v1/google", googleRouter);
 
 app.use("/v1/upgradePlan", authenticateUser, purchaseRouter);
-app.use("/v1/downgradePlan", authenticateUser, downgradeRouter);
 app.use("/v1/webhook", webhookRouter);
+app.use("/v1/downgradePlan", authenticateUser, downgradeRouter);
 
 // start server only if NOT in production
 if (process.env.NODE_ENV !== "production") {

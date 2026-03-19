@@ -52,14 +52,19 @@ export const getDirectoryContents = async (req, res, next) => {
         }),
       );
     }
+
+    const userRootDir = await DirectoryModel.findOne({ userID });
+
     return res.status(200).json({
       folders,
       files,
       filesCount,
       foldersCount,
       path: pathData,
-      roleCode: req.user.roleCode,
+      usedStorage: userRootDir.size,
+      totalStorage: req.user.maxStorageInBytes,
       role: req.user.role,
+      roleCode: req.user.roleCode,
     });
   } catch (error) {
     console.error("Failed to fetch folder content:", error);

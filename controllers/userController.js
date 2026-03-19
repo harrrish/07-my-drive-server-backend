@@ -228,7 +228,7 @@ export const deleteUserSession = async (req, res) => {
   }
 };
 
-export const getUserData = async (req, res) => {
+export const getUserProfileData = async (req, res) => {
   try {
     // console.log(req.user);
     // const redisKey = `user:${req.user.id}`;
@@ -236,7 +236,20 @@ export const getUserData = async (req, res) => {
     // if (!redisData) return customErr(res, 500, "Invalid Session !");
 
     //* Finding User
-    const { name, email, role, picture, maxStorageInBytes } = req.user;
+    const {
+      name,
+      email,
+      contactNumber,
+      username,
+      role,
+      picture,
+      maxStorageInBytes,
+      roleCode,
+      starredItems,
+      trashedItems,
+      sharedByMe,
+      sharedWithMe,
+    } = req.user;
 
     //* Finding Root folder
     const { size } = await DirectoryModel.findOne({
@@ -244,13 +257,25 @@ export const getUserData = async (req, res) => {
       name: `root-${email}`,
     });
 
+    const starredItemsCount = starredItems.length;
+    const trashedItemsCount = trashedItems.length;
+    const sharedByMeCount = sharedByMe.length;
+    const sharedWithMeCount = sharedWithMe.length;
+
     return res.status(200).json({
       name,
       email,
+      contactNumber,
+      username,
+      maxStorageInBytes,
       role,
       picture,
       size,
-      maxStorageInBytes,
+      roleCode,
+      starredItemsCount,
+      trashedItemsCount,
+      sharedByMeCount,
+      sharedWithMeCount,
     });
   } catch (error) {
     console.error("Fetching user details failed:", error);
@@ -259,18 +284,7 @@ export const getUserData = async (req, res) => {
   }
 };
 
-export const getUserStorage = async (req, res) => {
-  try {
-    const { rootID, maxStorageInBytes } = req.user;
-    const { size } = await DirectoryModel.findById(rootID).select("size -_id");
-    return res.status(200).json({ maxStorageInBytes, size });
-  } catch (error) {
-    console.error("Fetching user details failed:", error);
-    return customErr(res, 500, INTERNAL_SERVER_ERROR);
-  }
-};
-
-export const logoutUser = asyncHandler(async (req, res) => {
+export const logoutUser = async (req, res) => {
   try {
     const { sessionID } = req.signedCookies;
     const redisKey = `session:${sessionID}`;
@@ -283,9 +297,9 @@ export const logoutUser = asyncHandler(async (req, res) => {
     console.error("Fetching user details failed:", error);
     return customErr(res, 500, "INTERNAL_SERVER_ERROR");
   }
-});
+};
 
-export const logoutUserAll = asyncHandler(async (req, res) => {
+export const logoutUserAll = async (req, res) => {
   try {
     const allSessions = await redisClient.ft.search(
       "userIDIndex",
@@ -302,4 +316,4 @@ export const logoutUserAll = asyncHandler(async (req, res) => {
     console.error("Fetching user details failed:", error);
     return customErr(res, 500, "INTERNAL_SERVER_ERROR");
   }
-});
+};

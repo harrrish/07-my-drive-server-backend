@@ -3,7 +3,7 @@ export const homeController = async (req, res) => {
     success: true,
     message: "Welcome to UVDS-My Drive!",
     developedBy: "Harish S",
-    email: "harishs1906@outlook.com",
-    contact: "7019412992",
+    email: "haridir150@gmail.com",
+    contactNumber: "7019412992",
   });
 };

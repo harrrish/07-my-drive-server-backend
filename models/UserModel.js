@@ -9,6 +9,12 @@ const userSchema = new Schema(
       minLength: [3, "User name must be minimum of 4 characters"],
       trim: true,
     },
+    contactNumber: {
+      type: String,
+    },
+    username: {
+      type: String,
+    },
     email: {
       type: String,
       required: [true, "Email field is required"],
@@ -36,7 +42,25 @@ const userSchema = new Schema(
       type: String,
       default: "",
     },
-    receivedContent: [
+    starredItems: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "File",
+      },
+    ],
+    trashedItems: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "File",
+      },
+    ],
+    sharedByMe: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "File",
+      },
+    ],
+    sharedWithMe: [
       {
         type: Schema.Types.ObjectId,
         ref: "File",
@@ -55,10 +79,15 @@ const userSchema = new Schema(
       type: Number,
       default: 1,
     },
+
     planCode: { type: Schema.Types.ObjectId, ref: "Plan" },
     roleValidity: {
       type: Date,
       default: Date.now() + 1000 * 60 * 60 * 24 * 365 * 10,
+    },
+    isDeactivated: {
+      type: Boolean,
+      default: false,
     },
     isDeleted: {
       type: Boolean,

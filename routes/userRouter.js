@@ -2,8 +2,7 @@ import express from "express";
 import authenticateUser from "../middlewares/authenticateUser.js";
 import {
   deleteUserSession,
-  getUserData,
-  getUserStorage,
+  getUserProfileData,
   loginUser,
   loginUserActivity,
   logoutUser,
@@ -24,9 +23,7 @@ userRouter.post("/reset-password", resetPassword);
 
 userRouter.delete("/delete-session/:id", deleteUserSession);
 
-userRouter.get("/profile", authenticateUser, getUserData);
-
-userRouter.get("/storage-details", authenticateUser, getUserStorage);
+userRouter.get("/profile", authenticateUser, getUserProfileData);
 
 userRouter.post("/logout", authenticateUser, logoutUser);
 

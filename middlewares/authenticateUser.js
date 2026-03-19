@@ -30,7 +30,7 @@ export default async function authenticateUser(req, res, next) {
       return customErr(res, 401, "INVALID_SESSION");
     }
 
-    //*===============> id, rootID, name, email, maxStorageInBytes, role, isDeleted
+    //*===============> id, rootID, name, email, maxStorageInBytes, role, roleCode, isDeleted
     req.user = user;
     next();
   } catch (error) {
